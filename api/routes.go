@@ -23,17 +23,21 @@ func (app *application) routes() http.Handler {
 		MaxAge:           300,
 	}))
 
-	router.Get("/api/users/login", app.Login)
+	// router.Get("/api/users/login", app.Login)
 	router.Post("/api/users/login", app.Login)
+	
+	// this returns all the users in the db
 	router.Get("/api/users/all", func(w http.ResponseWriter, r *http.Request) {
 		var users data.User
 		all, err := users.GetAll()
 		if err != nil {
-			app.errorLog.Println()
+			app.errorLog.Println(err)
 			return
 		}
 		app.writeJSON(w, http.StatusOK, all)
 	})
+
+	// route to test if the server is working
 	router.Get("/api/test", func(w http.ResponseWriter, r *http.Request) {
 		type Test struct {
 			Message string `json:"msg"`

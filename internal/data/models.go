@@ -66,6 +66,8 @@ func (u *User) GetAll() ([]*User, error) {
 			&user.FirstName,
 			&user.LastName,
 			&user.Password,
+			&user.CreatedAt,
+			&user.UpdatedAt,		
 		)
 		if err != nil {
 			return nil, err

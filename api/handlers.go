@@ -1,15 +1,46 @@
 package main
 
 import (
+	"chi_soccer/internal/data"
+	"encoding/json"
+	"errors"
 	"net/http"
+	"os"
+	"time"
+
+	"github.com/golang-jwt/jwt/v4"
 )
 
 type jsonResponse struct {
-	Error   bool   `json:"error"`
-	Message string `json:"message"`
+	Error   bool        `json:"error"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
+}
+
+type responseObj struct {
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
+}
+
+type envelope map[string]interface{}
+
+func (app *application) GetAllUsers(w http.ResponseWriter, r *http.Request) {
+	var users data.User
+	all, err := users.GetAll()
+	if err != nil {
+		app.errorLog.Println(err)
+		return
+	}
+
+	app.writeJSON(w, http.StatusOK, envelope{"users": all})
 }
 
 func (app *application) Login(w http.ResponseWriter, r *http.Request) {
+	var myKey = []byte(os.Getenv("SECRET_KEY"))
+	// key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 	// declare credentials
 	type credentials struct {
 		UserName string `json:"email"`
@@ -27,13 +58,59 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 		_ = app.writeJSON(w, http.StatusBadRequest, payload)
 	}
 
-	app.infoLog.Println(creds.UserName, creds.Password)
-	// send back a response
-	payload.Error = false
-	payload.Message = "Signed in"
+	user, err := app.models.User.GetByEmail(creds.UserName)
+	if err != nil {
+		app.errorJSON(w, errors.New("invalid username/password"))
+		return
+	}
 
-	err = app.writeJSON(w, http.StatusOK, payload)
+	validPassword, err := user.PasswordMatches(creds.Password)
+	if err != nil || !validPassword {
+		app.errorJSON(w, errors.New("invalid username/password"))
+		return
+	}
+
+	token := jwt.New(jwt.SigningMethodHS256)
+	claims := token.Claims.(jwt.MapClaims)
+	claims["authorized"] = true
+	claims["user"] = user.FirstName
+	claims["exp"] = time.Now().Add(time.Minute * 60 * 4).Unix()
+
+	tokenString, err := token.SignedString(myKey)
+
 	if err != nil {
 		app.errorLog.Println(err)
+		app.errorJSON(w, err)
+		return
+	}
+
+	// create response
+	response := responseObj{
+		Message: "logged in",
+		Data:    tokenString,
+	}
+
+	// send response if no erros
+	err = app.writeJSON(w, http.StatusOK, response)
+	if err != nil {
+		app.errorLog.Println(err)
+	}
+}
+
+func (app *application) Signup(w http.ResponseWriter, r *http.Request) {
+	var u data.User
+	err := json.NewDecoder(r.Body).Decode(&u)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	app.writeJSON(w, http.StatusOK, u)
+	id, err := app.models.User.Signup(u)
+	if err != nil {
+		app.errorLog.Println(err)
+		app.errorJSON(w, err, http.StatusForbidden)
+		app.infoLog.Println("Got back if of", id)
+		newUser, _ := app.models.User.GetById(id)
+		app.writeJSON(w, http.StatusOK, newUser)
 	}
 }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"chi_soccer/internal/data"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -23,18 +22,15 @@ func (app *application) routes() http.Handler {
 		MaxAge:           300,
 	}))
 
-	// router.Get("/api/users/login", app.Login)
+	// users login
 	router.Post("/api/users/login", app.Login)
-	
+	// users signup
+	router.Post("/api/users/signup", app.Signup)
 	// this returns all the users in the db
-	router.Get("/api/users/all", func(w http.ResponseWriter, r *http.Request) {
-		var users data.User
-		all, err := users.GetAll()
-		if err != nil {
-			app.errorLog.Println(err)
-			return
-		}
-		app.writeJSON(w, http.StatusOK, all)
+	router.Route("/api/users/all", func(router chi.Router) {
+		router.Use(app.IsAuthorized)
+		router.Get("/", app.GetAllUsers)
+
 	})
 
 	// route to test if the server is working
@@ -52,25 +48,6 @@ func (app *application) routes() http.Handler {
 		}
 		// app.writeJSON(w, http.StatusOK, "Test Updated")
 		app.writeJSON(w, http.StatusOK, &m)
-	})
-
-	// Create a user, this should be a POST method
-	router.Post("/api/users/signup", func(w http.ResponseWriter, r *http.Request) {
-		var u data.User
-		err := json.NewDecoder(r.Body).Decode(&u)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		app.writeJSON(w, http.StatusOK, u)
-		id, err := app.models.User.Signup(u)
-		if err != nil {
-			app.errorLog.Println(err)
-			app.errorJSON(w, err, http.StatusForbidden)
-			app.infoLog.Println("Got back if of", id)
-			newUser, _ := app.models.User.GetById(id)
-			app.writeJSON(w, http.StatusOK, newUser)
-		}
 	})
 
 	return router

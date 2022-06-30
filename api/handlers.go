@@ -17,6 +17,10 @@ type jsonResponse struct {
 	Data    interface{} `json:"data,omitempty"`
 }
 
+type tokenResponse struct {
+	Token string `json:"token"`
+}
+
 type responseObj struct {
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
@@ -37,16 +41,10 @@ func (app *application) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 	var myKey = []byte(os.Getenv("SECRET_KEY"))
-	// key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// declare credentials
 	type credentials struct {
 		UserName string `json:"email"`
 		Password string `json:"password"`
 	}
-
 	var creds credentials
 	var payload jsonResponse
 
@@ -57,19 +55,19 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 		payload.Message = "Invalid json supplied"
 		_ = app.writeJSON(w, http.StatusBadRequest, payload)
 	}
-
+	// get user if creds are valid
 	user, err := app.models.User.GetByEmail(creds.UserName)
 	if err != nil {
 		app.errorJSON(w, errors.New("invalid username/password"))
 		return
 	}
-
+	// check if valid
 	validPassword, err := user.PasswordMatches(creds.Password)
 	if err != nil || !validPassword {
 		app.errorJSON(w, errors.New("invalid username/password"))
 		return
 	}
-
+	// create new token
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
 	claims["authorized"] = true
@@ -77,17 +75,14 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 	claims["exp"] = time.Now().Add(time.Minute * 60 * 4).Unix()
 
 	tokenString, err := token.SignedString(myKey)
-
 	if err != nil {
 		app.errorLog.Println(err)
 		app.errorJSON(w, err)
 		return
 	}
-
 	// create response
-	response := responseObj{
-		Message: "logged in",
-		Data:    tokenString,
+	response := tokenResponse{
+		Token: tokenString,
 	}
 
 	// send response if no erros

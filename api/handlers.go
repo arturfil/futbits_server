@@ -58,7 +58,7 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 	// get user if creds are valid
 	user, err := app.models.User.GetByEmail(creds.UserName)
 	if err != nil {
-		app.errorJSON(w, errors.New("invalid username/password"))
+		app.errorJSON(w, errors.New("invalid no user found"))
 		return
 	}
 	// check if valid

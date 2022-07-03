@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -30,24 +28,6 @@ func (app *application) routes() http.Handler {
 	router.Route("/api/users/all", func(router chi.Router) {
 		router.Use(app.IsAuthorized)
 		router.Get("/", app.GetAllUsers)
-
-	})
-
-	// route to test if the server is working
-	router.Get("/api/test", func(w http.ResponseWriter, r *http.Request) {
-		type Test struct {
-			Message string `json:"msg"`
-		}
-		msg := &Test{
-			Message: "Hello",
-		}
-		m, err := json.Marshal(msg)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		// app.writeJSON(w, http.StatusOK, "Test Updated")
-		app.writeJSON(w, http.StatusOK, &m)
 	})
 
 	return router

@@ -11,6 +11,18 @@ run: build
 	@env DSN=${DSN} ./${BINARY_NAME} &
 	@echo "Backend started!"
 
+dropdb:
+	docker-compose exec postgres psql -U postgres -d postgres -c "DROP DATABASE chi_soccer"
+
+createdb:
+	docker exec -it backend_postgres_1 createdb --username=postgres --owner=postgres chi_soccer
+
+migrateup:
+	migrate -path db/migration -database "postgresql://postgres:password@localhost:5432/chi_soccer?sslmode=disable" -verbose up
+
+migratedown:
+	migrate -path db/migration -database "postgresql://postgres:password@localhost:5432/chi_soccer?sslmode=disable" -verbose down
+
 clean:
 	@echo "Cleaning..."
 	@go clean

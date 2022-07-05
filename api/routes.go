@@ -20,6 +20,7 @@ func (app *application) routes() http.Handler {
 		MaxAge:           300,
 	}))
 
+	// USER ROUTES
 	// users login
 	router.Post("/api/users/login", app.Login)
 	// users signup
@@ -29,6 +30,12 @@ func (app *application) routes() http.Handler {
 		router.Use(app.IsAuthorized)
 		router.Get("/", app.GetAllUsers)
 	})
+
+	// FIELD ROUTES
+	// GET/all
+	router.Get("/api/fields", app.GetAllFields)
+	router.Post("/api/fields/create", app.CreateField)
+	router.Put("/api/fields/update", app.UpdateField)
 
 	return router
 }

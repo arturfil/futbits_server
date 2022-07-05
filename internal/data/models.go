@@ -31,6 +31,7 @@ func New(dbPool *sql.DB) Models {
 // models we will use, User & Token
 type Models struct {
 	User  User
+	Field Field
 	Token Token
 }
 

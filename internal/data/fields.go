@@ -41,6 +41,27 @@ func (f *Field) GetAllFields() ([]*Field, error) {
 	return fields, nil
 }
 
+// GET/fields/field/:id
+func (f *Field) GetFieldById(id int) (*Field, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+	query := `select * from fields where id = $1`
+	var field Field
+
+	row := db.QueryRowContext(ctx, query, id)
+	err := row.Scan(
+		&field.ID,
+		&field.Name,
+		&field.Address,
+		&field.CreatedAt,
+		&field.UpdatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &field, nil
+}
+
 // POST/createField
 func (f *Field) CreateField(field Field) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
@@ -65,26 +86,7 @@ func (f *Field) CreateField(field Field) (int, error) {
 	return newId, nil
 }
 
-func (f *Field) GetFieldById(id int) (*Field, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
-	defer cancel()
-	query := `select * from fields where id = $1`
-	var field Field
-
-	row := db.QueryRowContext(ctx, query, id)
-	err := row.Scan(
-		&field.ID,
-		&field.Name,
-		&field.Address,
-		&field.CreatedAt,
-		&field.UpdatedAt,
-	)
-	if err != nil {
-		return nil, err
-	}
-	return &field, nil
-}
-
+// PUT/games/game
 func (f *Field) UpdateField() error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -111,7 +113,7 @@ func (f *Field) UpdateField() error {
 	return nil
 }
 
-func (f *Field) Delete() error {
+func (f *Field) DeleteField() error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 	query := `delete from fields where id = $1`

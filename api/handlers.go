@@ -18,7 +18,8 @@ type jsonResponse struct {
 }
 
 type tokenResponse struct {
-	Token string `json:"token"`
+	Token string     `json:"token"`
+	User  *data.User `json:"user"`
 }
 
 type responseObj struct {
@@ -80,9 +81,11 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 		app.errorJSON(w, err)
 		return
 	}
+	user.Password = "hidden"
 	// create response
 	response := tokenResponse{
 		Token: tokenString,
+		User:  user,
 	}
 
 	// send response if no erros

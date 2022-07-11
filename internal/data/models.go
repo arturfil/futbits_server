@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -30,14 +32,17 @@ func New(dbPool *sql.DB) Models {
 
 // models we will use, User & Token
 type Models struct {
-	User  User
-	Field Field
-	Token Token
+	User   User
+	Field  Field
+	Token  Token
+	Game   Game
+	Group  Group
+	Member Member
 }
 
 // User model
 type User struct {
-	ID        int       `json:"id"`
+	ID        string    `json:"id"`
 	Email     string    `json:"email"`
 	FirstName string    `json:"first_name,omitempty"`
 	LastName  string    `json:"last_name,omitempty"`
@@ -100,7 +105,7 @@ func (u *User) GetByEmail(email string) (*User, error) {
 }
 
 // this function will return a user, given the id
-func (u *User) GetById(id int) (*User, error) {
+func (u *User) GetById(id string) (*User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 	query := `select id, email, first_name, last_name, password, created_at, updated_at from users where id = $1`
@@ -164,20 +169,21 @@ func (u *User) Delete() error {
 }
 
 // this function will create a user
-func (u *User) Signup(user User) (int, error) {
+func (u *User) Signup(user User) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 12)
 	if err != nil {
-		return 0, err
+		return "0", err
 	}
 
-	var newId int
+	newId := uuid.New()
 	stmt := `
-		insert into users (email, first_name, last_name, password, created_at, updated_at)
-		values ($1, $2, $3, $4, $5, $6) returning id
+		insert into users (id, email, first_name, last_name, password, created_at, updated_at)
+		values ($1, $2, $3, $4, $5, $6, $7) returning id
 	`
 	err = db.QueryRowContext(ctx, stmt,
+		newId,
 		user.Email,
 		user.FirstName,
 		user.LastName,
@@ -187,9 +193,9 @@ func (u *User) Signup(user User) (int, error) {
 	).Scan(&newId)
 
 	if err != nil {
-		return 0, err
+		return "0", err
 	}
-	return newId, nil
+	return newId.String(), nil
 }
 
 // this function resets the user password

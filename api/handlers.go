@@ -4,6 +4,7 @@ import (
 	"chi_soccer/internal/data"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -22,10 +23,10 @@ type tokenResponse struct {
 	User  *data.User `json:"user"`
 }
 
-type responseObj struct {
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-}
+// type responseObj struct {
+// 	Message string      `json:"message"`
+// 	Data    interface{} `json:"data,omitempty"`
+// }
 
 type envelope map[string]interface{}
 
@@ -72,7 +73,8 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
 	claims["authorized"] = true
-	claims["user"] = user.FirstName
+	claims["name"] = user.FirstName
+	claims["email"] = user.Email
 	claims["exp"] = time.Now().Add(time.Minute * 60 * 4).Unix()
 
 	tokenString, err := token.SignedString(myKey)
@@ -110,5 +112,48 @@ func (app *application) Signup(w http.ResponseWriter, r *http.Request) {
 		app.infoLog.Println("Got back if of", id)
 		newUser, _ := app.models.User.GetById(id)
 		app.writeJSON(w, http.StatusOK, newUser)
+	}
+}
+
+func (app *application) GetUserByToken(w http.ResponseWriter, r *http.Request) {
+	type TokenClaim struct {
+		Authorized bool   `json:"authorized"`
+		Email      string `json:"email"`
+		Exp        int    `json:"exp"`
+		Name       string `json:"name"`
+		jwt.StandardClaims
+	}
+
+	claims := &TokenClaim{}
+	token, err := jwt.ParseWithClaims(r.Header["Authorization"][0], claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("there was an error")
+		}
+		return myKey, nil
+	})
+	if err != nil {
+		app.infoLog.Print(err)
+		return
+	}
+	if token.Valid {
+
+		if err != nil {
+			app.infoLog.Print(err)
+		}
+		// &tkn.Email = c.email
+		// app.writeJSON(w, http.StatusOK, token)
+		// user, err := app.models.User.GetByEmail(data.email)
+		if err != nil {
+			app.infoLog.Print(err)
+			return
+		}
+		user, err := app.models.User.GetByEmail(claims.Email)
+		if err != nil {
+			app.infoLog.Print(err)
+		}
+		user.Password = ""
+		app.writeJSON(w, http.StatusOK, user)
+		// app.writeJSON(w, http.StatusOK, token.Claims)
+		return
 	}
 }

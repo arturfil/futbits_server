@@ -22,14 +22,16 @@ func (app *application) routes() http.Handler {
 
 	// USER ROUTES
 	// users login
-	router.Post("/api/users/login", app.Login)
 	// users signup
+	router.Post("/api/users/login", app.Login)
 	router.Post("/api/users/signup", app.Signup)
+	router.Get("/", app.GetAllUsers)
+
 	// this returns all the users in the db
-	// router.Route("/api/users/all", func(router chi.Router) {
-	// 	router.Use(app.IsAuthorized)
-	// })
-	router.Get("/api/users/all", app.GetAllUsers)
+	router.Route("/api/users", func(router chi.Router) {
+		router.Use(app.IsAuthorized)
+		router.Get("/bytoken", app.GetUserByToken)
+	})
 
 	// FIELD ROUTES
 	// GET/all

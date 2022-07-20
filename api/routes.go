@@ -26,6 +26,7 @@ func (app *application) routes() http.Handler {
 	router.Post("/api/users/login", app.Login)
 	router.Post("/api/users/signup", app.Signup)
 	router.Get("/", app.GetAllUsers)
+	router.Get("/api/users/search", app.SearchUser)
 
 	// this returns all the users in the db
 	router.Route("/api/users", func(router chi.Router) {
@@ -47,9 +48,12 @@ func (app *application) routes() http.Handler {
 	router.Put("/api/games/update", app.UpdateGame)
 
 	// GROUP ROUTES
-	router.Get("/api/groups", app.GetAllGroups)
-	router.Get("/api/groups/group/{id}", app.GetGroupById)
-	router.Post("/api/groups/create", app.CreateGroup)
+	router.Route("/api/groups", func(router chi.Router) {
+		router.Use(app.IsAuthorized)
+		router.Get("/", app.GetAllGroups)
+		router.Get("/group/{id}", app.GetGroupById)
+		router.Post("/create", app.CreateGroup)
+	})
 
 	// MEMBER ROUTES
 	router.Get("/api/members/{group_id}", app.GetAllMembersFromGroup)

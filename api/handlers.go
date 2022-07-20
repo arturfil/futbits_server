@@ -115,6 +115,18 @@ func (app *application) Signup(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (app *application) SearchUser(w http.ResponseWriter, r *http.Request) {
+	searchWord := r.URL.Query().Get("keyword")
+	app.infoLog.Println(searchWord)
+	users, err := app.models.User.SearchUserBy(searchWord)
+	if err != nil {
+		app.errorLog.Println(err)
+		return
+	}
+	app.writeJSON(w, http.StatusOK, envelope{"users": users})
+
+}
+
 func (app *application) GetUserByToken(w http.ResponseWriter, r *http.Request) {
 	type TokenClaim struct {
 		Authorized bool   `json:"authorized"`
@@ -140,9 +152,7 @@ func (app *application) GetUserByToken(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			app.infoLog.Print(err)
 		}
-		// &tkn.Email = c.email
-		// app.writeJSON(w, http.StatusOK, token)
-		// user, err := app.models.User.GetByEmail(data.email)
+
 		if err != nil {
 			app.infoLog.Print(err)
 			return
@@ -153,7 +163,6 @@ func (app *application) GetUserByToken(w http.ResponseWriter, r *http.Request) {
 		}
 		user.Password = ""
 		app.writeJSON(w, http.StatusOK, user)
-		// app.writeJSON(w, http.StatusOK, token.Claims)
 		return
 	}
 }

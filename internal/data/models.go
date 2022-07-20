@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"encoding/base32"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -125,6 +126,47 @@ func (u *User) GetById(id string) (*User, error) {
 		return nil, err
 	}
 	return &user, nil
+}
+
+// this will help when creating a new member for a group
+func (u *User) SearchUserBy(term string) ([]*User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+	query := `
+		select 
+			id, 
+			email, 
+			first_name, 
+			last_name, 
+			created_at, 
+			updated_at 
+		from users 
+		where first_name like '%' || $1 || '%' or last_name like '%' || $1 || '%' or email like '%' || $1 || '%'
+	`
+	rows, err := db.QueryContext(ctx, query, term)
+	if err != nil {
+		fmt.Println("HERE", err)
+		return nil, err
+	}
+	defer rows.Close()
+	var users []*User
+	for rows.Next() {
+		var user User
+		err := rows.Scan(
+			&user.ID,
+			&user.Email,
+			&user.FirstName,
+			&user.LastName,
+			&user.CreatedAt,
+			&user.UpdatedAt,
+		)
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+		users = append(users, &user)
+	}
+	return users, nil
 }
 
 // this function will update a user

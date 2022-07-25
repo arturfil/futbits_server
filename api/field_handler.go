@@ -4,7 +4,6 @@ import (
 	"chi_soccer/internal/data"
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -23,11 +22,7 @@ func (app *application) GetAllFields(w http.ResponseWriter, r *http.Request) {
 // GET/fields/field
 func (app *application) GetFieldById(w http.ResponseWriter, r *http.Request) {
 	// var field data.Field
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
-	if err != nil {
-		app.errorLog.Println(err)
-		return
-	}
+	id := chi.URLParam(r, "id")
 	singleField, err := app.models.Field.GetFieldById(id)
 	if err != nil {
 		app.errorLog.Println(err)

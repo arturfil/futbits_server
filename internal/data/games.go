@@ -3,19 +3,21 @@ package data
 import (
 	"context"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Game struct {
-	ID        int       `json:"id"`
-	FieldID   int       `json:"field_id"`
+	ID        string    `json:"id"`
+	FieldID   string    `json:"field_id"`
 	StartTime time.Time `json:"start_time"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type GameResponse struct {
-	ID        int       `json:"id"`
-	FieldID   int       `json:"field_id"`
+	ID        string    `json:"id"`
+	FieldID   string    `json:"field_id"`
 	FieldName string    `json:"field_name"`
 	StartTime time.Time `json:"start_time"`
 	CreatedAt time.Time `json:"created_at"`
@@ -64,7 +66,7 @@ func (g *Game) GetAllGames() ([]*GameResponse, error) {
 }
 
 // GET/games/game/:id
-func (g *Game) GetGameById(id int) (*Game, error) {
+func (g *Game) GetGameById(id string) (*Game, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 	query := `select * from games where id = $1`
@@ -85,28 +87,29 @@ func (g *Game) GetGameById(id int) (*Game, error) {
 }
 
 // POST/games/create
-func (g *Game) CreateGame(game Game) (int, error) {
+func (g *Game) CreateGame(game Game) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	var newId int
+	newId := uuid.New()
 	query := `
-		insert into games (field_id, start_time, created_at, updated_at)
-		values ($1, $2, $3, $4) returning id
+		insert into games (id, field_id, start_time, created_at, updated_at)
+		values ($1, $2, $3, $4, $5) returning id
 	`
 
 	err := db.QueryRowContext(
 		ctx,
 		query,
+		newId,
 		game.FieldID,
 		game.StartTime,
 		time.Now(),
 		time.Now(),
 	).Scan(&newId)
 	if err != nil {
-		return 0, err
+		return "0", err
 	}
-	return newId, nil
+	return newId.String(), nil
 }
 
 func (g *Game) UpdateGame() error {

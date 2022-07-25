@@ -11,6 +11,9 @@ run: build
 	@env DSN=${DSN} ./${BINARY_NAME} &
 	@echo "Backend started!"
 
+dirtflagfalse:
+	docker exec -it backend_postgres_1 update schema_migrations set dirty = false
+
 dropdb:
 	docker-compose exec postgres psql -U postgres -d postgres -c "DROP DATABASE chi_soccer"
 

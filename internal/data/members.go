@@ -3,21 +3,23 @@ package data
 import (
 	"context"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Member struct {
-	ID         int       `json:"id"`
-	PlayerID   string    `json:"player_id"`
+	ID         string    `json:"id"`
+	PlayerID   string    `json:"user_id"`
 	MemberType string    `json:"member_type"`
-	GroupID    int       `json:"group_id"`
+	GroupID    string    `json:"group_id"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 type MemberReponse struct {
-	ID         int       `json:"id"`
-	PlayerID   string    `json:"player_id"`
-	GroupID    int       `json:"group_id"`
+	ID         string    `json:"id"`
+	PlayerID   string    `json:"user_id"`
+	GroupID    string    `json:"group_id"`
 	MemberType string    `json:"member_type"`
 	FirstName  string    `json:"first_name"`
 	LastName   string    `json:"last_name"`
@@ -27,13 +29,13 @@ type MemberReponse struct {
 }
 
 // GET/members/:group_id
-func (m *Member) GetAllMemberOfAGroup(group_id int) ([]*MemberReponse, error) {
+func (m *Member) GetAllMemberOfAGroup(group_id string) ([]*MemberReponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 	query := `
 		select 
 			m.id,
-			m.player_id,
+			m.user_id,
 			m.group_id,
 			m.member_type,
 			u.first_name,
@@ -44,7 +46,7 @@ func (m *Member) GetAllMemberOfAGroup(group_id int) ([]*MemberReponse, error) {
 		from
 			members m
 		inner join users u
-			on m.player_id = u.id
+			on m.user_id = u.id
 		where m.group_id = $1
 	`
 
@@ -76,17 +78,18 @@ func (m *Member) GetAllMemberOfAGroup(group_id int) ([]*MemberReponse, error) {
 }
 
 // POST/members/create
-func (m *Member) CreateMember(member Member) (int, error) {
+func (m *Member) CreateMember(member Member) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-	var newId int
+	newId := uuid.New()
 	query := `
-		insert into members (player_id, group_id, member_type, created_at, updated_at)
-		values ($1, $2, $3, $4, $5) returning id
+		insert into members (id, user_id, group_id, member_type, created_at, updated_at)
+		values ($1, $2, $3, $4, $5, $6) returning id
 	`
 	err := db.QueryRowContext(
 		ctx,
 		query,
+		newId,
 		member.PlayerID,
 		member.GroupID,
 		member.MemberType,
@@ -94,7 +97,7 @@ func (m *Member) CreateMember(member Member) (int, error) {
 		time.Now(),
 	).Scan(&newId)
 	if err != nil {
-		return 0, err
+		return "0", err
 	}
-	return newId, nil
+	return newId.String(), nil
 }

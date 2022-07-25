@@ -23,11 +23,6 @@ type tokenResponse struct {
 	User  *data.User `json:"user"`
 }
 
-// type responseObj struct {
-// 	Message string      `json:"message"`
-// 	Data    interface{} `json:"data,omitempty"`
-// }
-
 type envelope map[string]interface{}
 
 func (app *application) GetAllUsers(w http.ResponseWriter, r *http.Request) {

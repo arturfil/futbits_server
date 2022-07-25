@@ -3,10 +3,12 @@ package data
 import (
 	"context"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Field struct {
-	ID        int       `json:"id"`
+	ID        string    `json:"id"`
 	Name      string    `json:"name"`
 	Address   string    `json:"address"`
 	CreatedAt time.Time `json:"created_at"`
@@ -42,7 +44,7 @@ func (f *Field) GetAllFields() ([]*Field, error) {
 }
 
 // GET/fields/field/:id
-func (f *Field) GetFieldById(id int) (*Field, error) {
+func (f *Field) GetFieldById(id string) (*Field, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 	query := `select * from fields where id = $1`
@@ -63,17 +65,18 @@ func (f *Field) GetFieldById(id int) (*Field, error) {
 }
 
 // POST/createField
-func (f *Field) CreateField(field Field) (int, error) {
+func (f *Field) CreateField(field Field) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	var newId int
+	newId := uuid.New()
 	query := `
-		insert into fields (name, address, created_at, updated_at)
-		values ($1, $2, $3, $4) returning id
+		insert into fields (id, name, address, created_at, updated_at)
+		values ($1, $2, $3, $4, $5) returning id
 	`
 
 	err := db.QueryRowContext(ctx, query,
+		newId,
 		field.Name,
 		field.Address,
 		time.Now(),
@@ -81,9 +84,9 @@ func (f *Field) CreateField(field Field) (int, error) {
 	).Scan(&newId)
 
 	if err != nil {
-		return 0, err
+		return "0", err
 	}
-	return newId, nil
+	return newId.String(), nil
 }
 
 // PUT/games/game

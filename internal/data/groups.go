@@ -3,10 +3,12 @@ package data
 import (
 	"context"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Group struct {
-	ID        int       `json:"id"`
+	ID        string    `json:"id"`
 	Name      string    `json:"name"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -41,7 +43,7 @@ func (g *Group) GetAllGroups() ([]*Group, error) {
 	return groups, nil
 }
 
-func (g *Group) GetGroupById(id int) (*Group, error) {
+func (g *Group) GetGroupById(id string) (*Group, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 	query := `select id, name, created_at, updated_at from groups where id = $1`
@@ -61,24 +63,25 @@ func (g *Group) GetGroupById(id int) (*Group, error) {
 }
 
 // POST/groups/create
-func (g *Group) CreateGroup(group Group) (int, error) {
+func (g *Group) CreateGroup(group Group) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-	var newId int // TODO: create serialize new ID
+	newId := uuid.New()
 	query := `
-		insert into groups (name, created_at, updated_at)
-		values ($1, $2, $3) returning id
+		insert into groups (id, name, created_at, updated_at)
+		values ($1, $2, $3, $4) returning id
 	`
 	err := db.QueryRowContext(
 		ctx,
 		query,
+		newId,
 		group.Name,
 		time.Now(),
 		time.Now(),
 	).Scan(&newId)
 	if err != nil {
-		return 0, err
+		return "0", err
 	}
-	return newId, nil
+	return newId.String(), nil
 
 }

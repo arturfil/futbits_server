@@ -4,19 +4,13 @@ import (
 	"chi_soccer/internal/data"
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/go-chi/chi/v5"
 )
 
 // GET/members/group_id
 func (app *application) GetAllMembersFromGroup(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(chi.URLParam(r, "group_id"))
-	app.infoLog.Println("id", id)
-	if err != nil {
-		app.errorLog.Println(err)
-		return
-	}
+	id := chi.URLParam(r, "group_id")
 	members, err := app.models.Member.GetAllMemberOfAGroup(id)
 	app.infoLog.Println(members)
 	if err != nil {

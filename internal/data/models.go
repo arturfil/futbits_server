@@ -2,14 +2,9 @@ package data
 
 import (
 	"context"
-	"crypto/rand"
-	"crypto/sha256"
 	"database/sql"
-	"encoding/base32"
 	"errors"
 	"fmt"
-	"net/http"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -26,19 +21,18 @@ var db *sql.DB
 func New(dbPool *sql.DB) Models {
 	db = dbPool
 	return Models{
-		User:  User{},
-		Token: Token{},
+		User: User{},
 	}
 }
 
 // models we will use, User & Token
 type Models struct {
-	User   User
-	Field  Field
-	Token  Token
-	Game   Game
-	Group  Group
-	Member Member
+	User    User
+	Field   Field
+	Game    Game
+	Profile Profile
+	Group   Group
+	Member  Member
 }
 
 // User model
@@ -268,174 +262,6 @@ func (u *User) PasswordMatches(plainText string) (bool, error) {
 		default:
 			return false, err
 		}
-	}
-	return true, nil
-}
-
-// token model
-type Token struct {
-	ID        int       `json:"id"`
-	UserID    int       `json:"user_id"`
-	Email     string    `json:"email"`
-	Token     string    `json:"token"`
-	TokenHash []byte    `json:"-"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Expiry    time.Time `json:"expiry"`
-}
-
-// Gets the user's TOKEN by plain text token
-func (t *Token) GetTokenByToken(plainText string) (*Token, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
-	defer cancel()
-	query := `select id, user_id, email, token, token_hash, created_at, updated_at, expiry
-		from tokens where token = $1
-	`
-
-	var token Token
-	row := db.QueryRowContext(ctx, query, plainText)
-	err := row.Scan(
-		&token.ID,
-		&token.UserID,
-		&token.Email,
-		&token.Token,
-		&token.TokenHash,
-		&token.CreatedAt,
-		&token.UpdatedAt,
-		&token.Expiry,
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &token, nil
-}
-
-// Gets the USER, by token
-func (t *Token) GetUserByToken(token Token) (*User, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
-	defer cancel()
-
-	query := `select id, email, first_name, last_name, password, created_at, updated_at, from users where id = $1`
-
-	var user User
-	row := db.QueryRowContext(ctx, query, token.UserID)
-
-	err := row.Scan(
-		&user.ID,
-		&user.Email,
-		&user.FirstName,
-		&user.LastName,
-		&user.Password,
-		&user.CreatedAt,
-		&user.UpdatedAt,
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &user, nil
-}
-
-// Generates a token
-func (t *Token) GenerateToken(userID int, ttl time.Duration) (*Token, error) {
-	token := &Token{
-		UserID: userID,
-		Expiry: time.Now().Add(ttl),
-	}
-	randomBytes := make([]byte, 16)
-	_, err := rand.Read(randomBytes)
-	if err != nil {
-		return nil, err
-	}
-	token.Token = base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(randomBytes)
-	hash := sha256.Sum256([]byte(token.Token))
-	token.TokenHash = hash[:]
-	return token, nil
-}
-
-// make sure we have a valid token
-func (t *Token) AuthenticateToken(r *http.Request) (*User, error) {
-	authorizationHeader := r.Header.Get("Authorization")
-	if authorizationHeader == "" {
-		return nil, errors.New("no authorization header received")
-	}
-	headerParts := strings.Split(authorizationHeader, " ")
-	if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-		return nil, errors.New("no valid authorization headers received")
-	}
-	token := headerParts[1]
-	if len(token) != 26 {
-		return nil, errors.New("token is not valid")
-	}
-	tkn, err := t.GetTokenByToken(token)
-	if err != nil {
-		return nil, errors.New("no matching token found")
-	}
-	if tkn.Expiry.Before(time.Now()) {
-		return nil, errors.New("expired token")
-	}
-	user, err := t.GetUserByToken(*tkn)
-	if err != nil {
-		return nil, errors.New("no matching user foudn")
-	}
-	return user, nil
-}
-
-// create token
-func (t *Token) InsertToken(token Token, u User) error {
-	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
-	defer cancel()
-
-	stmt := `delete from tokens where user_id = $1`
-	_, err := db.ExecContext(ctx, stmt, token.UserID)
-	if err != nil {
-		return err
-	}
-	token.Email = u.Email
-	stmt = `insert into tokens (user_id, email, token, token_hash, created_at, updated_at, expiry)
-		values ($1, $2, $3, $4, $5, $6, $7)	
-	`
-	_, err = db.ExecContext(ctx, stmt,
-		&token.UserID,
-		&token.Email,
-		&token.Token,
-		&token.TokenHash,
-		token.Expiry,
-	)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// delete token
-func (t *Token) DeleteByToken(plainText string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
-	defer cancel()
-
-	stmt := `delete from tokens where token = $1`
-	_, err := db.ExecContext(ctx, stmt, plainText)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// Validating a token
-func (t *Token) ValidToken(plainText string) (bool, error) {
-	token, err := t.GetTokenByToken(plainText)
-	if err != nil {
-		return false, errors.New("no matching token found")
-	}
-	_, err = t.GetUserByToken(*token)
-	if err != nil {
-		return false, errors.New("no matching user found")
-	}
-	if token.Expiry.Before(time.Now()) {
-		return false, errors.New("expired token")
 	}
 	return true, nil
 }

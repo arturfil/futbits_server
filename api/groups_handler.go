@@ -4,7 +4,6 @@ import (
 	"chi_soccer/internal/data"
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -22,11 +21,7 @@ func (app *application) GetAllGroups(w http.ResponseWriter, r *http.Request) {
 
 // GET/groups/group/:id
 func (app *application) GetGroupById(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
-	if err != nil {
-		app.errorLog.Println(err)
-		return
-	}
+	id := chi.URLParam(r, "id")
 	group, err := app.models.Group.GetGroupById(id)
 	if err != nil {
 		app.errorLog.Println(err)

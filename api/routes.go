@@ -34,11 +34,14 @@ func (app *application) routes() http.Handler {
 		router.Get("/bytoken", app.GetUserByToken)
 	})
 
+	// PROFILE ROUTES
+	router.Post("/api/profile/create", app.CreateProfile)
+	router.Get("/api/profile/{id}", app.GetProfileById)
+
 	// FIELD ROUTES
-	// GET/all
 	router.Get("/api/fields", app.GetAllFields)
 	router.Get("/api/fields/field/{id}", app.GetFieldById)
-	router.Post("/api/fields/create", app.CreateField)
+	router.Post("/api/fields/field", app.CreateField)
 	router.Put("/api/fields/update", app.UpdateField)
 
 	// GAME ROUTES

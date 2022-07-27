@@ -35,8 +35,8 @@ func (app *application) routes() http.Handler {
 	})
 
 	// PROFILE ROUTES
-	router.Post("/api/profile/create", app.CreateProfile)
 	router.Get("/api/profile/{id}", app.GetProfileById)
+	router.Post("/api/profile/create", app.CreateProfile)
 
 	// FIELD ROUTES
 	router.Get("/api/fields", app.GetAllFields)
@@ -55,6 +55,7 @@ func (app *application) routes() http.Handler {
 		router.Use(app.IsAuthorized)
 		router.Get("/", app.GetAllGroups)
 		router.Get("/group/{id}", app.GetGroupById)
+		router.Get("/{user_id}", app.GetAllGroupsOfAUser)
 		router.Post("/create", app.CreateGroup)
 	})
 

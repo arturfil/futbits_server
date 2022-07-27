@@ -19,6 +19,17 @@ func (app *application) GetAllGroups(w http.ResponseWriter, r *http.Request) {
 	app.writeJSON(w, http.StatusOK, envelope{"groups": all})
 }
 
+// GET/groups/:user_id
+func (app *application) GetAllGroupsOfAUser(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "user_id")
+	groups, err := app.models.Group.GetGroupsByMemberId(id)
+	if err != nil {
+		app.errorLog.Println(err)
+		return
+	}
+	app.writeJSON(w, http.StatusOK, groups)
+}
+
 // GET/groups/group/:id
 func (app *application) GetGroupById(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
@@ -28,7 +39,6 @@ func (app *application) GetGroupById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	app.writeJSON(w, http.StatusOK, group)
-
 }
 
 // POST/groups/create

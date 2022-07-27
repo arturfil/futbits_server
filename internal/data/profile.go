@@ -50,7 +50,7 @@ func (p *Profile) CreateProfile(profile Profile) (string, error) {
 func (p *Profile) GetProfileById(id string) (*Profile, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-	query := `select * from profile where id = $1` // make sure you declare everything in scan
+	query := `select * from profile where user_id = $1` // make sure you declare everything in scan
 	var profile Profile
 	row := db.QueryRowContext(ctx, query, id)
 	err := row.Scan(

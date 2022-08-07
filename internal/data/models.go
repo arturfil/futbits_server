@@ -33,6 +33,7 @@ type Models struct {
 	Profile Profile
 	Group   Group
 	Member  Member
+	Report  Report
 }
 
 // User model

@@ -51,13 +51,19 @@ func (app *application) routes() http.Handler {
 	router.Put("/api/games/update", app.UpdateGame)
 
 	// GROUP ROUTES
+	// router.Get("/api/groups", app.GetAllGroups)
 	router.Route("/api/groups", func(router chi.Router) {
-		router.Use(app.IsAuthorized)
+		// 	router.Use(app.IsAuthorized)
 		router.Get("/", app.GetAllGroups)
 		router.Get("/group/{id}", app.GetGroupById)
 		router.Get("/{user_id}", app.GetAllGroupsOfAUser)
 		router.Post("/create", app.CreateGroup)
 	})
+
+	// REPORTS ROUTES
+	router.Get("/api/reports/{user_id}", app.GetReportsOfUser)
+	router.Get("/api/reports/report/{id}", app.GetReportById)
+	router.Post("/api/reports/report", app.CreateReport)
 
 	// MEMBER ROUTES
 	router.Get("/api/members/{group_id}", app.GetAllMembersFromGroup)

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/joho/godotenv"
 )
 
 type jsonResponse struct {
@@ -37,6 +38,7 @@ func (app *application) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) Login(w http.ResponseWriter, r *http.Request) {
+	godotenv.Load(".env")
 	var myKey = []byte(os.Getenv("SECRET_KEY"))
 	type credentials struct {
 		UserName string `json:"email"`
@@ -123,6 +125,8 @@ func (app *application) SearchUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) GetUserByToken(w http.ResponseWriter, r *http.Request) {
+	godotenv.Load(".env")
+	var myKey = []byte(os.Getenv("SECRET_KEY"))
 	type TokenClaim struct {
 		Authorized bool   `json:"authorized"`
 		Email      string `json:"email"`

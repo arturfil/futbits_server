@@ -7,11 +7,13 @@ import (
 	"os"
 
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/joho/godotenv"
 )
 
-var myKey = []byte(os.Getenv("SECRET_KEY"))
-
 func (app *application) IsAuthorized(next http.Handler) http.Handler {
+	godotenv.Load(".env")
+	var myKey = []byte(os.Getenv("SECRET_KEY"))
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		if r.Header["Authorization"] != nil {

@@ -3,11 +3,12 @@ package main
 import (
 	"chi_soccer/internal/data"
 	"chi_soccer/internal/driver"
-	"chi_soccer/util"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 type config struct {
@@ -22,12 +23,10 @@ type application struct {
 }
 
 func main() {
+	godotenv.Load(".env")
 	var cfg config
-	port_cfg, err := util.LoadConfig(".")
-	if err != nil {
-		log.Fatal("couldn't load config file")
-	}
-	cfg.port = port_cfg.ServerAddress
+	port := os.Getenv("PORT")
+	cfg.port = port
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
@@ -54,10 +53,11 @@ func main() {
 }
 
 func (app *application) serve() error {
-	app.infoLog.Println("API listening on port", app.config.port)
+	port := os.Getenv("PORT")
+	app.infoLog.Println("API listening on port", port)
 
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%s", app.config.port),
+		Addr:    fmt.Sprintf(":%s", port),
 		Handler: app.routes(),
 	}
 

@@ -53,7 +53,7 @@ func (app *application) routes() http.Handler {
 	// GROUP ROUTES
 	// router.Get("/api/groups", app.GetAllGroups)
 	router.Route("/api/groups", func(router chi.Router) {
-		// 	router.Use(app.IsAuthorized)
+		router.Use(app.IsAuthorized)
 		router.Get("/", app.GetAllGroups)
 		router.Get("/group/{id}", app.GetGroupById)
 		router.Get("/{user_id}", app.GetAllGroupsOfAUser)

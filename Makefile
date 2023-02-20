@@ -1,30 +1,58 @@
-DSN="host=localhost port=5432 user=postgres password=password dbname=chi_soccer sslmode=disable timezone=UTC connect_timeout=5"
+DSN="host=localhost port=5432 user=root password=secret dbname=chi_soccerdb sslmode=disable timezone=UTC connect_timeout=5"
 BINARY_NAME=soccerApi
+PORT=8080
+DB_DOCKER_CONTAINER=chi_soccer
+
+# creates container with postgres software
+postgres:
+	docker run --name ${DB_DOCKER_CONTAINER} -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:12-alpine
+# creates the db withing the postgres container
+createdb:
+	docker exec -it ${DB_DOCKER_CONTAINER} createdb --username=root --owner=root chi_soccerdb
+
+migrateup:
+	migrate -path migrations -database "postgresql://root:secret@localhost:5432/chi_soccerdb?sslmode=disable" -verbose up
+
+migratedown:
+	migrate -path migrations -database "postgresql://root:secret@localhost:5432/chi_soccerdb?sslmode=disable" -verbose down
 
 build:
 	@echo "Building backend"
-	go build -o ${BINARY_NAME} ./api
+	go build -o ${BINARY_NAME} cmd/server/*.go
 	@echo "Binary build!"
 
+stop_containers:
+	@echo "Stoping all docker containers..."
+	if [ $$(docker ps -q) ]; then \
+		echo "found and stopped containers..."; \
+		docker stop $$(docker ps -q); \
+	else \
+		echo "no active containers found..."; \
+	fi
+
+docker-run:
+	@echo "Running docker images"
+	docker-compose up --build -d
+
+docker-stop:
+	@echo "\nStopping all images\n"
+	docker-compose stop
+
 run: build
+	@echo "Starting db docker container"
+	docker start ${DB_DOCKER_CONTAINER}
 	@echo "Starting backend..."
-	@env DSN=${DSN} ./${BINARY_NAME} &
+	@env PORT=${PORT} DSN=${DSN} ./${BINARY_NAME}  &
 	@echo "Backend started!"
+
+buildbackend:
+	set GOOS=linux&& set GOARCH=amd64&& set CGO_ENABLED=0 && go build -o ${BINARY_NAME} ./api
 
 dirtflagfalse:
 	docker exec -it backend_postgres_1 update schema_migrations set dirty = false
 
 dropdb:
 	docker-compose exec postgres psql -U postgres -d postgres -c "DROP DATABASE chi_soccer"
-
-createdb:
-	docker exec -it backend_postgres_1 createdb --username=postgres --owner=postgres chi_soccer
-
-migrateup:
-	migrate -path db/migration -database "postgresql://postgres:password@localhost:5432/chi_soccer?sslmode=disable" -verbose up
-
-migratedown:
-	migrate -path db/migration -database "postgresql://postgres:password@localhost:5432/chi_soccer?sslmode=disable" -verbose down
 
 clean:
 	@echo "Cleaning..."

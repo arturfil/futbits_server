@@ -39,24 +39,24 @@ func Routes() http.Handler {
 	})
 
 	// PROFILE ROUTES
-	router.Get("/api/profile/{id}", controllers.GetProfileById)
-	router.Post("/api/profile/create", controllers.CreateProfile)
+	router.Get("/api/v1/profile/{id}", controllers.GetProfileById)
+	router.Post("/api/v1/profile/create", controllers.CreateProfile)
 
 	// FIELD ROUTES
-	router.Get("/api/fields", controllers.GetAllFields)
-	router.Get("/api/fields/field/{id}", controllers.GetFieldById)
-	router.Post("/api/fields/field", controllers.CreateField)
-	router.Put("/api/fields/update", controllers.UpdateField)
+	router.Get("/api/v1/fields", controllers.GetAllFields)
+	router.Get("/api/v1/fields/field/{id}", controllers.GetFieldById)
+	router.Post("/api/v1/fields/field", controllers.CreateField)
+	router.Put("/api/v1/fields/update", controllers.UpdateField)
 
 	// GAME ROUTES
-	router.Get("/api/games", controllers.GetAllGames)
-	router.Get("/api/games/game/{id}", controllers.GetGameById)
-	router.Post("/api/games/create", controllers.CreateGame)
-	router.Put("/api/games/update", controllers.UpdateGame)
+	router.Get("/api/v1/games", controllers.GetAllGames)
+	router.Get("/api/v1/games/game/{id}", controllers.GetGameById)
+	router.Post("/api/v1/games/create", controllers.CreateGame)
+	router.Put("/api/v1/games/update", controllers.UpdateGame)
 
 	// GROUP ROUTES
-	// router.Get("/api/groups", controllers.GetAllGroups)
-	router.Route("/api/groups", func(router chi.Router) {
+	// router.Get("/api/v1/groups", controllers.GetAllGroups)
+	router.Route("/api/v1/groups", func(router chi.Router) {
 		router.Get("/", controllers.GetAllGroups)
 		router.Get("/group/{id}", controllers.GetGroupById)
 		router.Get("/{user_id}", controllers.GetAllGroupsOfAUser)
@@ -64,13 +64,13 @@ func Routes() http.Handler {
 	})
 
 	// REPORTS ROUTES
-	router.Get("/api/reports/{user_id}", controllers.GetReportsOfUser)
-	router.Get("/api/reports/report/{id}", controllers.GetReportById)
-	router.Post("/api/reports/report", controllers.CreateReport)
+	router.Get("/api/v1/reports/{user_id}", controllers.GetReportsOfUser)
+	router.Get("/api/v1/reports/report/{id}", controllers.GetReportById)
+	router.Post("/api/v1/reports/report", controllers.CreateReport)
 
 	// MEMBER ROUTES
-	router.Get("/api/members/{group_id}", controllers.GetAllMembersFromGroup)
-	router.Post("/api/members/create", controllers.CreateMember)
+	router.Get("/api/v1/members/{group_id}", controllers.GetAllMembersFromGroup)
+	router.Post("/api/v1/members/create", controllers.CreateMember)
 
 	return router
 }

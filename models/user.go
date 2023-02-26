@@ -113,32 +113,28 @@ func (u *User) SearchUserBy(term string) ([]*User, error) {
 }
 
 // this function will create a user
-func Signup(u User) (*User, error) {
+func (u *User) Signup(user User) (*User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
-	var user User
 	defer cancel()
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), 12)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 12)
 	if err != nil {
 		return nil, err
 	}
 
-	stmt := `
+	query := `
 		insert into users (email, first_name, last_name, password, created_at, updated_at)
 		values ($1, $2, $3, $4, $5, $6) returning *;
 	`
-	res, err := db.ExecContext(
+	_, err = db.ExecContext(
 		ctx,
-		stmt,
-		u.Email,
-		u.FirstName,
-		u.LastName,
+		query,
+		user.Email,
+		user.FirstName,
+		user.LastName,
 		hashedPassword,
 		time.Now(),
 		time.Now(),
 	)
-
-	fmt.Println("RES exec -> ", res)
-
 	if err != nil {
 		return nil, err
 	}

@@ -21,7 +21,12 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	// helpers.WriteJSON(w, http.StatusOK, u)
+	helpers.WriteJSON(w, http.StatusOK, u)
+	_, err = mod.User.Signup(u)
+	if err != nil {
+		h.ErrorLog.Panicln(err)
+		helpers.ErrorJSON(w, err, http.StatusForbidden)
+	}
 }
 
 // this method will check that the credentials against the key are
@@ -29,12 +34,13 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 func Login(w http.ResponseWriter, r *http.Request) {
 	var myKey = []byte(os.Getenv("SECRET_KEY"))
 	type credentials struct {
-		Username string `json:"email"`
+		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
 	// setup creds & jsonResponse
 	var creds credentials
 	var payload models.JsonResponse
+
 	// read Json
 	err := helpers.ReadJson(w, r, &creds)
 	if err != nil {
@@ -44,15 +50,15 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		_ = helpers.WriteJSON(w, http.StatusBadRequest, payload)
 	}
 	// get user if creds are valid
-	user, err := mod.User.GetByEmail(creds.Username)
+	user, err := mod.User.GetByEmail(creds.Email)
 	if err != nil {
-		helpers.ErrorJson(w, errors.New("invalid, no user found"))
+		helpers.ErrorJSON(w, errors.New("invalid, no user found"))
 		return
 	}
 	// check if valid
 	validPassword, err := user.PasswordMatches(creds.Password)
 	if err != nil || !validPassword {
-		helpers.ErrorJson(w, errors.New("invalide username/password"))
+		helpers.ErrorJSON(w, errors.New("invalid email/password"))
 		return
 	}
 	// create new token
@@ -66,7 +72,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	tokenString, err := token.SignedString(myKey)
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
-		helpers.ErrorJson(w, err)
+		helpers.ErrorJSON(w, err)
 		return
 	}
 	user.Password = "hidden"

@@ -2,6 +2,7 @@ DSN="host=localhost port=5432 user=root password=secret dbname=chi_soccerdb sslm
 BINARY_NAME=soccerApi
 PORT=8080
 DB_DOCKER_CONTAINER=chi_soccer
+SECRET_KEY=asdkjq234-081234j-lkasdf82314-32jlkjadsf0-891234ljasdf0-143jlaksdf
 
 # creates container with postgres software
 postgres:

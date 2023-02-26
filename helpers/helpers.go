@@ -59,7 +59,7 @@ func WriteJSON(w http.ResponseWriter, status int, data interface{}, headers ...h
 	return nil
 }
 
-func ErrorJson(w http.ResponseWriter, err error, status ...int) {
+func ErrorJSON(w http.ResponseWriter, err error, status ...int) {
 	statusCode := http.StatusBadRequest
 	if len(status) > 0 {
 		statusCode = status[0]

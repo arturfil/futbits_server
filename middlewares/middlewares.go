@@ -37,7 +37,7 @@ func IsAuthorized(next http.Handler) http.Handler {
 				next.ServeHTTP(w, r)
 			}
 		} else {
-			helpers.ErrorJson(w, errors.New("authorization headers missing"))
+			helpers.ErrorJSON(w, errors.New("authorization headers missing"))
 		}
 	})
 }

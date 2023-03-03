@@ -3,44 +3,49 @@ package models
 import (
 	"context"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type Game struct {
-	ID        string    `json:"id"`
-	FieldID   string    `json:"field_id"`
-	StartTime time.Time `json:"start_time"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID         string    `json:"id"`
+	FieldID    string    `json:"field_id"`
+	StartTime  time.Time `json:"start_time"`
+	MaxPlayers int8      `json:"max_players"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 type GameResponse struct {
-	ID        string    `json:"id"`
-	FieldID   string    `json:"field_id"`
-	FieldName string    `json:"field_name"`
-	StartTime time.Time `json:"start_time"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID         string    `json:"id"`
+	FieldID    string    `json:"field_id"`
+	FieldName  string    `json:"field_name"`
+	MaxPlayers int8      `json:"max_players"`
+	StartTime  time.Time `json:"start_time"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 func (g *Game) GetAllGames() ([]*GameResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
+	// query := `
+	// 	select
+	// 		g.id,
+	// 		g.field_id,
+	// 		f.name,
+	// 		g.start_time,
+	// 		g.max_players,
+	// 		g.created_at,
+	// 		g.created_at
+	// 	from
+	// 		games g
+	// 	inner join fields f
+	// 		on g.field_id = f.id
+
+	// `
+
 	query := `
-		select 
-			g.id, 
-			g.field_id,
-			f.name,
-			g.start_time,
-			g.created_at,
-			g.created_at
-		from 
-			games g
-		inner join fields f
-			on g.field_id = f.id
-		
+		select id, field_id, max_players, start_time, created_at, updated_at from games;
 	`
 	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
@@ -52,7 +57,7 @@ func (g *Game) GetAllGames() ([]*GameResponse, error) {
 		err := rows.Scan(
 			&game.ID,
 			&game.FieldID,
-			&game.FieldName,
+			&game.MaxPlayers,
 			&game.StartTime,
 			&game.CreatedAt,
 			&game.UpdatedAt,
@@ -76,6 +81,7 @@ func (g *Game) GetGameById(id string) (*Game, error) {
 	err := row.Scan(
 		&game.ID,
 		&game.FieldID,
+		&game.MaxPlayers,
 		&game.StartTime,
 		&game.CreatedAt,
 		&game.UpdatedAt,
@@ -87,29 +93,28 @@ func (g *Game) GetGameById(id string) (*Game, error) {
 }
 
 // POST/games/create
-func (g *Game) CreateGame(game Game) (string, error) {
+func (g *Game) CreateGame(game Game) (*Game, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	newId := uuid.New()
 	query := `
-		insert into games (id, field_id, start_time, created_at, updated_at)
-		values ($1, $2, $3, $4, $5) returning id
+		insert into games (field_id, start_time, max_players, created_at, updated_at)
+		values ($1, $2, $3, $4, $5) returning *
 	`
 
-	err := db.QueryRowContext(
+	_, err := db.ExecContext(
 		ctx,
 		query,
-		newId,
 		game.FieldID,
 		game.StartTime,
+		game.MaxPlayers,
 		time.Now(),
 		time.Now(),
-	).Scan(&newId)
+	)
 	if err != nil {
-		return "0", err
+		return nil, err
 	}
-	return newId.String(), nil
+	return &game, nil
 }
 
 func (g *Game) UpdateGame() error {
@@ -120,8 +125,9 @@ func (g *Game) UpdateGame() error {
 		update games set
 		field_id = $1,
 		start_time = $2,
-		updated_at = $3,
-		where id = $4
+		max_players = $3
+		updated_at = $4,
+		where id = $5
 	`
 
 	_, err := db.ExecContext(

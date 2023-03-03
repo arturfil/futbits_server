@@ -40,10 +40,10 @@ func CreateGame(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	helpers.WriteJSON(w, http.StatusOK, g)
-	id, err := mod.Game.CreateGame(g)
+	user, err := mod.Game.CreateGame(g)
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
-		newGame, _ := mod.Game.GetGameById(id)
+		newGame, _ := mod.Game.GetGameById(user.ID)
 		helpers.WriteJSON(w, http.StatusOK, newGame)
 	}
 }

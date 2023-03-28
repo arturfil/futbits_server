@@ -70,16 +70,30 @@ func (g *Game) GetAllGames() ([]*GameResponse, error) {
 }
 
 // GET/games/game/:id
-func (g *Game) GetGameById(id string) (*Game, error) {
+func (g *Game) GetGameById(id string) (*GameResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-	query := `select id, field_id, field_name, max_players, game_date, start_time, created_at, updated_at from games where id = $1`
-	var game Game
+	query := `
+        select 
+            g.id,
+            g.field_id,
+            f.name,
+            g.max_players,
+            g.game_date,
+            g.start_time,
+            g.created_at,
+            g.updated_at 
+        from games g
+        inner join fields f
+            on g.field_id = f.id
+        where g.id = $1`
+	var game GameResponse
 
 	row := db.QueryRowContext(ctx, query, id)
 	err := row.Scan(
 		&game.ID,
 		&game.FieldID,
+        &game.FieldName,
 		&game.MaxPlayers,
 		&game.GameDate,
 		&game.StartTime,

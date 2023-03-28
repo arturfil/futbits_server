@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"chi_soccer/helpers"
-	"chi_soccer/models"
+	"chi_soccer/services"
 	"encoding/json"
 	"net/http"
 
@@ -11,7 +11,7 @@ import (
 
 // GET/fields
 func GetAllFields(w http.ResponseWriter, r *http.Request) {
-	var fields models.Field
+	var fields services.Field
 	all, err := fields.GetAllFields()
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
@@ -22,7 +22,7 @@ func GetAllFields(w http.ResponseWriter, r *http.Request) {
 
 // GET/fields/field
 func GetFieldById(w http.ResponseWriter, r *http.Request) {
-	// var field models.Field
+	// var field services.Field
 	id := chi.URLParam(r, "id")
 	singleField, err := mod.Field.GetFieldById(id)
 	if err != nil {
@@ -34,7 +34,7 @@ func GetFieldById(w http.ResponseWriter, r *http.Request) {
 
 // POST/fields/field
 func CreateField(w http.ResponseWriter, r *http.Request) {
-	var f models.Field
+	var f services.Field
 	err := json.NewDecoder(r.Body).Decode(&f)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -51,7 +51,7 @@ func CreateField(w http.ResponseWriter, r *http.Request) {
 
 // PUT/field
 func UpdateField(w http.ResponseWriter, r *http.Request) {
-	var f models.Field
+	var f services.Field
 	err := json.NewDecoder(r.Body).Decode(&f)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

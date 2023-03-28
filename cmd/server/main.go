@@ -3,8 +3,8 @@ package main
 import (
 	"chi_soccer/db"
 	"chi_soccer/helpers"
-	"chi_soccer/models"
 	"chi_soccer/routes"
+	"chi_soccer/services"
 	"fmt"
 	"log"
 	"net/http"
@@ -17,7 +17,7 @@ type Config struct {
 
 type Application struct {
 	Config Config
-	Models models.Models
+	Models services.Models
 }
 
 func (app *Application) Serve() error {
@@ -46,7 +46,7 @@ func main() {
 
 	app := &Application{
 		Config: cfg,
-		Models: models.New(dbConn.DB),
+		Models: services.New(dbConn.DB),
 	}
 
 	err = app.Serve()

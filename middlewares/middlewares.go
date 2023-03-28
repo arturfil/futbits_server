@@ -2,7 +2,7 @@ package middlewares
 
 import (
 	"chi_soccer/helpers"
-	"chi_soccer/models"
+	models "chi_soccer/services"
 	"errors"
 	"fmt"
 	"net/http"

@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"chi_soccer/helpers"
-	"chi_soccer/models"
+	"chi_soccer/services"
 	"encoding/json"
 	"net/http"
 
@@ -10,7 +10,7 @@ import (
 )
 
 func CreateProfile(w http.ResponseWriter, r *http.Request) {
-	var p models.Profile
+	var p services.Profile
 	err := json.NewDecoder(r.Body).Decode(&p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

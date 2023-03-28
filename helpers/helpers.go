@@ -1,7 +1,7 @@
 package helpers
 
 import (
-	"chi_soccer/models"
+	models "chi_soccer/services"
 	"encoding/json"
 	"errors"
 	"io"

@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"chi_soccer/helpers"
-	"chi_soccer/models"
+	"chi_soccer/services"
 )
 
 var h helpers.Message
-var mod models.Models
+var mod services.Models

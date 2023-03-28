@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"chi_soccer/helpers"
-	"chi_soccer/models"
+	"chi_soccer/services"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -15,7 +15,7 @@ import (
 )
 
 func Signup(w http.ResponseWriter, r *http.Request) {
-	var u models.User
+	var u services.User
 	err := json.NewDecoder(r.Body).Decode(&u)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -39,7 +39,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 	// setup creds & jsonResponse
 	var creds credentials
-	var payload models.JsonResponse
+	var payload services.JsonResponse
 
 	// read Json
 	err := helpers.ReadJson(w, r, &creds)
@@ -77,7 +77,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 	user.Password = "hidden"
 	// create response
-	response := models.TokenResponse{
+	response := services.TokenResponse{
 		Token: tokenString,
 		User:  user,
 	}

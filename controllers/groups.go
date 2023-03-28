@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"chi_soccer/helpers"
-	"chi_soccer/models"
+	"chi_soccer/services"
 	"encoding/json"
 	"net/http"
 
@@ -11,7 +11,7 @@ import (
 
 // GET/groups
 func GetAllGroups(w http.ResponseWriter, r *http.Request) {
-	var groups models.Group
+	var groups services.Group
 	all, err := groups.GetAllGroups()
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
@@ -44,7 +44,7 @@ func GetGroupById(w http.ResponseWriter, r *http.Request) {
 
 // POST/groups/create
 func CreateGroup(w http.ResponseWriter, r *http.Request) {
-	var g models.Group // 0xffddc234 \\ {name: "Manchester Utd", id: 1234}
+	var g services.Group // 0xffddc234 \\ {name: "Manchester Utd", id: 1234}
 	err := json.NewDecoder(r.Body).Decode(&g)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"chi_soccer/helpers"
-	"chi_soccer/models"
+	"chi_soccer/services"
 	"encoding/json"
 	"net/http"
 
@@ -23,7 +23,7 @@ func GetAllMembersFromGroup(w http.ResponseWriter, r *http.Request) {
 
 // POST/members/create
 func CreateMember(w http.ResponseWriter, r *http.Request) {
-	var m models.Member
+	var m services.Member
 	err := json.NewDecoder(r.Body).Decode(&m)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -35,5 +35,5 @@ func CreateMember(w http.ResponseWriter, r *http.Request) {
 		helpers.MessageLogs.ErrorLog.Println(err)
 	}
 	helpers.WriteJSON(w, http.StatusOK, id)
-	// id, err := app.models.Member.CreateMember()
+	// id, err := app.services.Member.CreateMember()
 }

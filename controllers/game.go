@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"chi_soccer/helpers"
-	"chi_soccer/models"
+	"chi_soccer/services"
 	"encoding/json"
 	"net/http"
 
@@ -11,7 +11,7 @@ import (
 
 // GET/games
 func GetAllGames(w http.ResponseWriter, r *http.Request) {
-	var games models.Game
+	var games services.Game
 	all, err := games.GetAllGames()
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
@@ -33,7 +33,7 @@ func GetGameById(w http.ResponseWriter, r *http.Request) {
 
 // POST/game
 func CreateGame(w http.ResponseWriter, r *http.Request) {
-	var g models.Game
+	var g services.Game
 	err := json.NewDecoder(r.Body).Decode(&g)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -50,7 +50,7 @@ func CreateGame(w http.ResponseWriter, r *http.Request) {
 
 // PUT/game
 func UpdateGame(w http.ResponseWriter, r *http.Request) {
-	var g models.Game
+	var g services.Game
 	err := json.NewDecoder(r.Body).Decode(&g)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

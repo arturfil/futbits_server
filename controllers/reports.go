@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"chi_soccer/helpers"
-	"chi_soccer/models"
+	"chi_soccer/services"
 	"encoding/json"
 	"net/http"
 
@@ -11,7 +11,7 @@ import (
 
 // GET/reports/report
 func GetAllReports(w http.ResponseWriter, r *http.Request) {
-	var reports models.Report
+	var reports services.Report
 	all, err := reports.GetAllReports()
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
@@ -44,7 +44,7 @@ func GetReportsOfUser(w http.ResponseWriter, r *http.Request) {
 
 // POST/reports/report
 func CreateReport(w http.ResponseWriter, r *http.Request) {
-	var rp models.Report
+	var rp services.Report
 	err := json.NewDecoder(r.Body).Decode(&rp)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

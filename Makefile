@@ -1,7 +1,7 @@
-DSN="host=localhost port=5432 user=root password=secret dbname=chi_soccerdb sslmode=disable timezone=UTC connect_timeout=5"
-BINARY_NAME=soccerApi
+DSN="host=localhost port=5432 user=root password=secret dbname=chi_soccerdb sslmode=disable timezone=UTC connect_timeout=5" BINARY_NAME=soccerApi
 PORT=8080
 DB_DOCKER_CONTAINER=chi_soccer
+BINARY_NAME=soccerApi
 SECRET_KEY=asdkjq234-081234j-lkasdf82314-32jlkjadsf0-891234ljasdf0-143jlaksdf
 
 # creates container with postgres software
@@ -16,6 +16,22 @@ migrateup:
 
 migratedown:
 	migrate -path migrations -database "postgresql://root:secret@localhost:5432/chi_soccerdb?sslmode=disable" -verbose down
+
+seed_data:
+	migrate -path migrations -database "postgresql://root:secret@localhost:5432/chi_soccerdb?sslmode=disable" -verbose up 2
+
+force_flag_false:
+	migrate -path migrations -database "postgresql://root:secret@localhost:5432/chi_soccerdb?sslmode=disable" force 1
+
+sign_up:
+	curl -X POST http://localhost:8080/api/v1/auth/signup \
+	-H 'Content-Type: application/json' \
+	-d '{ \
+		"first_name": "Arturo", \
+		"last_name": "Filio", \
+		"email": "arturo@test.com", \
+		"password": "Password123" \
+	}' \
 
 build:
 	@echo "Building backend"
@@ -38,6 +54,9 @@ docker-run:
 docker-stop:
 	@echo "\nStopping all images\n"
 	docker-compose stop
+
+start-docker:
+	docker start ${DB_DOCKER_CONTAINER}
 
 run: build
 	@echo "Starting db docker container"

@@ -21,8 +21,9 @@ CREATE TABLE fields (
 CREATE TABLE games (
   "id" uuid PRIMARY KEY NOT NULL DEFAULT (uuid_generate_v4()),
   "field_id" uuid NOT NULL,
-  "start_time" timestamptz NOT NULL DEFAULT (now()),
+  "start_time" varchar NOT NULL,
   "max_players" int NOT NULL,
+  "game_date" timestamptz NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );

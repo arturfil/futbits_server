@@ -29,14 +29,3 @@ type Models struct {
 	TokenResponse TokenResponse
 	Game          Game
 }
-
-// models we will use, User & Token
-// type Models struct {
-// 	User    User
-// 	Field   Field
-// 	Game    Game
-// 	Profile Profile
-// 	Group   Group
-// 	Member  Member
-// 	Report  Report
-// }

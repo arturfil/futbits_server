@@ -3,22 +3,29 @@ PORT=8080
 DB_DOCKER_CONTAINER=chi_soccer
 BINARY_NAME=soccerApi
 SECRET_KEY=asdkjq234-081234j-lkasdf82314-32jlkjadsf0-891234ljasdf0-143jlaksdf
+DB_NAME=chi_soccerdb
 
 # creates container with postgres software
 postgres:
 	docker run --name ${DB_DOCKER_CONTAINER} -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:12-alpine
 # creates the db withing the postgres container
 createdb:
-	docker exec -it ${DB_DOCKER_CONTAINER} createdb --username=root --owner=root chi_soccerdb
+	docker exec -it ${DB_DOCKER_CONTAINER} createdb --username=root --owner=root ${DB_NAME}
 
-migrateup:
-	migrate -path migrations -database "postgresql://root:secret@localhost:5432/chi_soccerdb?sslmode=disable" -verbose up
+create-migrations-init:
+	sqlx migrate add -r init
 
-migratedown:
-	migrate -path migrations -database "postgresql://root:secret@localhost:5432/chi_soccerdb?sslmode=disable" -verbose down
+migrate-up:
+	sqlx migrate run --database-url "postgresql://root:secret@localhost:5432/chi_soccerdb?sslmode=disable" 
+
+migrate-down:
+	sqlx migrate revert --database-url "postgresql://root:secret@localhost:5432/chi_soccerdb?sslmode=disable" 
+
+create-migrations-seed:
+	sqlx migrate add -r seed 
 
 seed_data:
-	migrate -path migrations -database "postgresql://root:secret@localhost:5432/chi_soccerdb?sslmode=disable" -verbose up 2
+	sqlx migrate run --database-url "postgresql://root:secret@localhost:5432/chi_soccerdb?sslmode=disable" 
 
 force_flag_false:
 	migrate -path migrations -database "postgresql://root:secret@localhost:5432/chi_soccerdb?sslmode=disable" force 1
@@ -58,7 +65,7 @@ docker-stop:
 start-docker:
 	docker start ${DB_DOCKER_CONTAINER}
 
-run: build
+run: build stop_containers start-docker
 	@echo "Starting db docker container"
 	docker start ${DB_DOCKER_CONTAINER}
 	@echo "Starting backend..."
@@ -72,7 +79,7 @@ dirtflagfalse:
 	docker exec -it backend_postgres_1 update schema_migrations set dirty = false
 
 dropdb:
-	docker-compose exec postgres psql -U postgres -d postgres -c "DROP DATABASE chi_soccer"
+	docker exec -it ${DB_DOCKER_CONTAINER} psql -U root -d postgres -c "DROP DATABASE chi_soccerdb"
 
 clean:
 	@echo "Cleaning..."

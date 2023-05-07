@@ -31,6 +31,22 @@ func GetGameById(w http.ResponseWriter, r *http.Request) {
 	helpers.WriteJSON(w, http.StatusOK, game)
 }
 
+// POST/games/game/byDateField
+func GetGameByDateField(w http.ResponseWriter, r *http.Request) {
+    var g services.Game
+    err := json.NewDecoder(r.Body).Decode(&g)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+    // helpers.WriteJSON(w, http.StatusOK, g)
+    if err != nil {
+        helpers.MessageLogs.ErrorLog.Println(err)
+    }
+    game, err := mod.Game.GetGameByDateField(g)
+    helpers.WriteJSON(w, http.StatusOK, game)
+}
+
 // POST/game
 func CreateGame(w http.ResponseWriter, r *http.Request) {
 	var g services.Game

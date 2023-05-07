@@ -51,6 +51,7 @@ func Routes() http.Handler {
 	// GAME ROUTES
 	router.Get("/api/v1/games", controllers.GetAllGames)
 	router.Get("/api/v1/games/game/{id}", controllers.GetGameById)
+	router.Post("/api/v1/games/game/byDateField", controllers.GetGameByDateField)
 	router.Post("/api/v1/games/game", controllers.CreateGame)
 	router.Put("/api/v1/games/update", controllers.UpdateGame)
 

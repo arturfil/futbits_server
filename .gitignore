@@ -25,6 +25,6 @@ app.env
 docker-compose.yaml
 
 project/db/*
-db/*
+db/postgres/*
 
 soccerApi

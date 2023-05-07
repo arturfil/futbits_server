@@ -4,6 +4,7 @@ import (
 	"chi_soccer/helpers"
 	"chi_soccer/services"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -56,4 +57,9 @@ func CreateGroup(w http.ResponseWriter, r *http.Request) {
 	}
 	newGroup, _ := mod.Group.GetGroupById(id)
 	helpers.WriteJSON(w, http.StatusOK, newGroup)
+}
+
+func DeleteGroup(w http.ResponseWriter, r *http.Request) {
+    id := chi.URLParam(r, "id")
+    fmt.Println("%v", id)
 }

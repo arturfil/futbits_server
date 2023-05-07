@@ -2,6 +2,8 @@ package services
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"time"
 )
 
@@ -10,7 +12,6 @@ type Game struct {
 	FieldID    string    `json:"field_id"`
 	GameDate   time.Time `json:"game_date"`
 	MaxPlayers int8      `json:"max_players"`
-	StartTime  string    `json:"start_time"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
 }
@@ -21,7 +22,6 @@ type GameResponse struct {
 	FieldName  string    `json:"field_name"`
 	GameDate   time.Time `json:"game_date"`
 	MaxPlayers int8      `json:"max_players"`
-	StartTime  string    `json:"start_time"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
 }
@@ -35,9 +35,8 @@ func (g *Game) GetAllGames() ([]*GameResponse, error) {
             g.id,
             g.field_id,
             f.name,
-            g.max_players,
+           g.max_players,
             g.game_date,
-            g.start_time,
             g.created_at,
             g.updated_at 
         from games g 
@@ -57,7 +56,6 @@ func (g *Game) GetAllGames() ([]*GameResponse, error) {
 			&game.FieldName,
 			&game.MaxPlayers,
 			&game.GameDate,
-			&game.StartTime,
 			&game.CreatedAt,
 			&game.UpdatedAt,
 		)
@@ -80,7 +78,6 @@ func (g *Game) GetGameById(id string) (*GameResponse, error) {
             f.name,
             g.max_players,
             g.game_date,
-            g.start_time,
             g.created_at,
             g.updated_at 
         from games g
@@ -96,7 +93,6 @@ func (g *Game) GetGameById(id string) (*GameResponse, error) {
 		&game.FieldName,
 		&game.MaxPlayers,
 		&game.GameDate,
-		&game.StartTime,
 		&game.CreatedAt,
 		&game.UpdatedAt,
 	)
@@ -106,21 +102,69 @@ func (g *Game) GetGameById(id string) (*GameResponse, error) {
 	return &game, nil
 }
 
+// POST/games/game/byDateField
+func (g *Game) GetGameByDateField(game Game) (*GameResponse, error) {
+    ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+    defer cancel()
+    query := `
+        select 
+           g.id,                                           
+            g.field_id,                                     
+            f.name,                                         
+            g.game_date,                                    
+            g.max_players,                                  
+            g.created_at,                                   
+            g.updated_at                                    
+        from games g                  
+        inner join fields f                      
+            on g.field_id = f.id
+        where g.game_date = $1 and g.field_id = $2;    
+    `
+    var gameRes GameResponse
+
+    row := db.QueryRowContext(ctx, query, game.GameDate, game.FieldID)
+    err := row.Scan(
+        &gameRes.ID,
+		&gameRes.FieldID,
+		&gameRes.FieldName,
+		&gameRes.GameDate,
+		&gameRes.MaxPlayers,
+		&gameRes.CreatedAt,
+		&gameRes.UpdatedAt,
+    )
+    if err != nil {
+        fmt.Println("ERROR", err)
+        return nil, err
+    }
+    return &gameRes, nil
+}
+
 // POST/games/create
 func (g *Game) CreateGame(game Game) (*Game, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
+    
+    gameExists, err := g.GetGameByDateField(game)
+    if err != nil {
+        fmt.Println("No game found!")
+    }
+
+    existsError := errors.New("Game already exists")
+    fmt.Printf("Exists -> %v, aboutToCreate -> %v", gameExists, game)
+    if gameExists != nil && gameExists.GameDate.UTC() == game.GameDate {
+        fmt.Println("\nGame with same datetime & field already exists----->")
+        return nil, existsError
+    }
 
 	query := `
-		insert into games (field_id, start_time, game_date, max_players, created_at, updated_at)
-		values ($1, $2, $3, $4, $5, $6) returning *
+		insert into games (field_id, game_date, max_players, created_at, updated_at)
+		values ($1, $2, $3, $4, $5) returning *
 	`
 
-	_, err := db.ExecContext(
+    _, err = db.ExecContext(
 		ctx,
 		query,
 		game.FieldID,
-		game.StartTime,
 		game.GameDate,
 		game.MaxPlayers,
 		time.Now(),
@@ -139,17 +183,15 @@ func (g *Game) UpdateGame() error {
 	query := `
 		update games set
 		field_id = $1,
-		start_time = $2,
-		max_players = $3
-		updated_at = $4,
-		where id = $5
+		max_players = $2,
+		updated_at = $3,
+		where id = $4
 	`
 
 	_, err := db.ExecContext(
 		ctx,
 		query,
 		g.FieldID,
-		g.StartTime,
 		time.Now(),
 		g.ID,
 	)

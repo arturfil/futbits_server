@@ -69,3 +69,7 @@ func (p *Profile) GetProfileById(id string) (*Profile, error) {
 	}
 	return &profile, nil
 }
+
+func (p *Profile) UpdateProfile(id string, data Profile) (*Profile, error) {
+    return &Profile{}, nil 
+}

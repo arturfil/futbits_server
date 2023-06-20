@@ -1,4 +1,5 @@
-DSN="host=localhost port=5432 user=root password=secret dbname=chi_soccerdb sslmode=disable timezone=UTC connect_timeout=5" BINARY_NAME=soccerApi
+DSN="host=localhost port=5432 user=root password=secret dbname=chi_soccerdb sslmode=disable timezone=UTC connect_timeout=5" 
+BINARY_NAME=soccerApi
 PORT=8080
 DB_DOCKER_CONTAINER=chi_soccer
 BINARY_NAME=soccerApi

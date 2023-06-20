@@ -41,12 +41,13 @@ func Routes() http.Handler {
 	// PROFILE ROUTES
 	router.Get("/api/v1/profile/{id}", controllers.GetProfileById)
 	router.Post("/api/v1/profile/create", controllers.CreateProfile)
+	router.Put("/api/v1/profile/update/{id}", controllers.UpdateProfile)
 
 	// FIELD ROUTES
 	router.Get("/api/v1/fields", controllers.GetAllFields)
 	router.Get("/api/v1/fields/field/{id}", controllers.GetFieldById)
 	router.Post("/api/v1/fields/field", controllers.CreateField)
-	router.Put("/api/v1/fields/update", controllers.UpdateField)
+	router.Put("/api/v1/fields/update", controllers.UpdateField) // TODO
 
 	// GAME ROUTES
 	router.Get("/api/v1/games", controllers.GetAllGames)

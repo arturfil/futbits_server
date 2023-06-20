@@ -70,6 +70,35 @@ func (p *Profile) GetProfileById(id string) (*Profile, error) {
 	return &profile, nil
 }
 
-func (p *Profile) UpdateProfile(id string, data Profile) (*Profile, error) {
-    return &Profile{}, nil 
+func (p *Profile) UpdateProfile(id string, data Profile) error {
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+
+	query := `
+            UPDATE profile SET
+            nationality = $1,
+            age = $2, 
+            gender = $3,
+            position = $4,
+            level = $5,
+            updated_at = $6
+            WHERE id = $7
+        `
+	_, err := db.ExecContext(
+		ctx,
+		query,
+		p.Nationality,
+		p.Age,
+		p.Gender,
+		p.Position,
+		p.Level,
+		time.Now(),
+		id,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

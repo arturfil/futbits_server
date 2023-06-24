@@ -45,7 +45,7 @@ func GetGroupById(w http.ResponseWriter, r *http.Request) {
 
 // POST/groups/create
 func CreateGroup(w http.ResponseWriter, r *http.Request) {
-	var g services.Group // 0xffddc234 \\ {name: "Manchester Utd", id: 1234}
+	var g services.Group 
 	err := json.NewDecoder(r.Body).Decode(&g)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

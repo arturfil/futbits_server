@@ -4,6 +4,7 @@ import (
 	"chi_soccer/helpers"
 	"chi_soccer/services"
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -17,6 +18,7 @@ func CreateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	id, err := mod.Profile.CreateProfile(p)
+    log.Println("ID", id)
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
 	}

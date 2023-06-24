@@ -106,7 +106,7 @@ func (g *Group) CreateGroup(group Group) (string, error) {
 	newId := uuid.New()
 	query := `
 		insert into groups (id, name, created_at, updated_at)
-		values ($1, $2, $3, $4) returning id
+		values ($1, $2, $3, $4) returning id;
 	`
 	err := db.QueryRowContext(
 		ctx,

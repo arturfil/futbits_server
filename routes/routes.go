@@ -62,7 +62,7 @@ func Routes() http.Handler {
 		router.Get("/", controllers.GetAllGroups)
 		router.Get("/group/{id}", controllers.GetGroupById)
 		router.Get("/{user_id}", controllers.GetAllGroupsOfAUser)
-		router.Post("/create", controllers.CreateGroup)
+		router.Post("/group", controllers.CreateGroup)
 	})
 
 	// REPORTS ROUTES
@@ -72,7 +72,7 @@ func Routes() http.Handler {
 
 	// MEMBER ROUTES
 	router.Get("/api/v1/members/{group_id}", controllers.GetAllMembersFromGroup)
-	router.Post("/api/v1/members/create", controllers.CreateMember)
+	router.Post("/api/v1/members/member", controllers.CreateMember)
 
 	return router
 }

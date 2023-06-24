@@ -22,8 +22,7 @@ type Profile struct {
 func (p *Profile) CreateProfile(profile Profile) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-
-	newId := uuid.New()
+    newId := uuid.New()
 	query := `
 		insert into profile (id, user_id, nationality, age, gender, position, level, created_at, updated_at)
 		values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id
@@ -31,7 +30,7 @@ func (p *Profile) CreateProfile(profile Profile) (string, error) {
 	err := db.QueryRowContext(
 		ctx,
 		query,
-		newId,
+        newId,
 		profile.UserID,
 		profile.Nationality,
 		profile.Age,
@@ -42,7 +41,7 @@ func (p *Profile) CreateProfile(profile Profile) (string, error) {
 		time.Now(),
 	).Scan(&newId)
 	if err != nil {
-		return "0", err
+		return "error", err
 	}
 	return newId.String(), nil
 }

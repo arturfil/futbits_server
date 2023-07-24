@@ -61,5 +61,5 @@ func CreateGroup(w http.ResponseWriter, r *http.Request) {
 
 func DeleteGroup(w http.ResponseWriter, r *http.Request) {
     id := chi.URLParam(r, "id")
-    fmt.Println("%v", id)
+    fmt.Printf("%v\n", id)
 }

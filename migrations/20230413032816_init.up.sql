@@ -38,6 +38,7 @@ CREATE TABLE attendees (
 CREATE TABLE groups (
   "id" uuid PRIMARY KEY NOT NULL DEFAULT (uuid_generate_v4()),
   "name" varchar UNIQUE NOT NULL,
+  "image" varchar,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
@@ -65,14 +66,17 @@ CREATE TABLE profile (
 
 CREATE TABLE reports (
   "id" uuid PRIMARY KEY NOT NULL DEFAULT (uuid_generate_v4()),
-  "user_id" uuid NOT NULL,
-  "game_id" uuid NOT NULL,
-  "assists" int NOT NULL,
+  "group_id" uuid,
+  "field_id" uuid,
+  "score" varchar NOT NULL,
+  "team_side" varchar NOT NULL,
+  "user_id" uuid,
+  "player_name" varchar NOT NULL,
   "goals" int NOT NULL,
-  "attendance" int NOT NULL,
-  "man_of_the_match" int NOT NULL,
-  "involvement" int NOT NULL,
-  "attitude" varchar NOT NULL,
+  "assists" int NOT NULL,
+  "won" int NOT NULL,
+  "man_of_the_match" int,
+  "game_date" timestamptz NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
@@ -91,8 +95,6 @@ ALTER TABLE "members" ADD FOREIGN KEY ("group_id") REFERENCES "groups" ("id");
 ALTER TABLE "profile" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
 ALTER TABLE "reports" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
-
-ALTER TABLE "reports" ADD FOREIGN KEY("game_id") REFERENCES "games" ("id");
 
 CREATE INDEX ON users ("email");
 

@@ -74,13 +74,20 @@ CREATE TABLE reports (
   "player_name" varchar NOT NULL,
   "goals" int NOT NULL,
   "assists" int NOT NULL,
-  "won" int NOT NULL,
+  "won" boolean NOT NULL,
   "man_of_the_match" int,
   "game_date" timestamptz NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
+CREATE TABLE requests (
+  "id" uuid PRIMARY KEY NOT NULL DEFAULT (uuid_generate_v4()),
+  "user_id" uuid NOT NULL,
+  "message" varchar NOT NULL,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now())
+);
 
 ALTER TABLE "games" ADD FOREIGN KEY ("field_id") REFERENCES "fields" ("id");
 
@@ -95,6 +102,8 @@ ALTER TABLE "members" ADD FOREIGN KEY ("group_id") REFERENCES "groups" ("id");
 ALTER TABLE "profile" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
 ALTER TABLE "reports" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+
+ALTER TABLE "requests" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
 CREATE INDEX ON users ("email");
 

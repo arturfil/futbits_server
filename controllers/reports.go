@@ -3,7 +3,9 @@ package controllers
 import (
 	"chi_soccer/helpers"
 	"chi_soccer/services"
+	"encoding/csv"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -40,6 +42,27 @@ func GetReportsOfUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	helpers.WriteJSON(w, http.StatusOK, reports)
+}
+
+func UploadReportCSV(w http.ResponseWriter, r *http.Request) {
+    var rp services.Report
+    r.ParseMultipartForm(10 << 20)
+
+    file, handler, err := r.FormFile("reports")
+    if err != nil {
+        fmt.Println("Error Retrieving File")
+        fmt.Println(err)
+        return
+    }
+    defer file.Close()
+
+    fmt.Printf("Uploaded file: %+v\n", handler.Filename)
+    
+    reader := csv.NewReader(file)
+    rp.UploadReport(reader)
+
+    msg := "CSV file processed successfully"
+    helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"msg": msg})
 }
 
 // POST/reports/report

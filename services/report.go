@@ -2,15 +2,23 @@ package services
 
 import (
 	"context"
+	"encoding/csv"
+	"fmt"
+	"io"
 	"time"
 
 	"github.com/google/uuid"
 )
 
+// TODO: missing mapping out table to struct
 type Report struct {
 	ID            string    `json:"id"`
+	GroupID       string    `json:"group_id"`
+	FieldID       string    `json:"field_id"`
+	Score         string    `json:"score"`
+	TeamSide      string    `json:"team_side"`
 	UserID        string    `json:"user_id"`
-	GameID        string    `json:"game_id"`
+	PlayerName    string    `json:"player_name"`
 	Assists       int       `json:"assists"`
 	Goals         int       `json:"goals"`
 	Attendance    int       `json:"attendance"`
@@ -37,7 +45,6 @@ func (r *Report) GetAllReports() ([]*Report, error) {
 		err := rows.Scan(
 			&report.ID,
 			&report.UserID,
-			&report.GameID,
 			&report.Assists,
 			&report.ManOfTheMatch,
 			&report.Attendance,
@@ -67,7 +74,6 @@ func (r *Report) CreateReport(report Report) (string, error) {
 		query,
 		newId,
 		report.UserID,
-		report.GameID,
 		report.Assists,
 		report.Goals,
 		report.Attendance,
@@ -83,6 +89,22 @@ func (r *Report) CreateReport(report Report) (string, error) {
 	return newId.String(), nil
 }
 
+func (r *Report) UploadReport(file *csv.Reader) {
+   fmt.Println(&file) 
+
+    for {
+        record, err := file.Read() 
+        if err == io.EOF {
+            break
+        } else if err != nil {
+            fmt.Println("Error", err) 
+            return
+        }
+
+        fmt.Println(record)
+    }
+}
+
 func (r *Report) GetReportById(id string) (*Report, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
@@ -93,7 +115,6 @@ func (r *Report) GetReportById(id string) (*Report, error) {
 	err := row.Scan(
 		&report.ID,
 		&report.UserID,
-		&report.GameID,
 		&report.Assists,
 		&report.Goals,
 		&report.Attendance,
@@ -140,7 +161,6 @@ func (r *Report) GetAllReporstById(user_id string) ([]*Report, error) {
 		err := rows.Scan(
 			&report.ID,
 			&report.UserID,
-			&report.GameID,
 			&report.Assists,
 			&report.Goals,
 			&report.Attendance,

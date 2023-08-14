@@ -8,22 +8,24 @@ import (
 )
 
 type Game struct {
-	ID         string    `json:"id"`
-	FieldID    string    `json:"field_id"`
-	GameDate   time.Time `json:"game_date"`
-	MaxPlayers int8      `json:"max_players"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	ID        string    `json:"id"`
+	FieldID   string    `json:"field_id"`
+	GameDate  time.Time `json:"game_date"`
+	Score     string    `json:"score"`
+	GroupID   string    `json:"group_id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type GameResponse struct {
-	ID         string    `json:"id"`
-	FieldID    string    `json:"field_id"`
-	FieldName  string    `json:"field_name"`
-	GameDate   time.Time `json:"game_date"`
-	MaxPlayers int8      `json:"max_players"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	ID        string    `json:"id"`
+	FieldID   string    `json:"field_id"`
+	FieldName string    `json:"field_name"`
+	GameDate  time.Time `json:"game_date"`
+	GroupID   string    `json:"group_id"`
+	Score     string    `json:"score"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func (g *Game) GetAllGames() ([]*GameResponse, error) {
@@ -35,7 +37,8 @@ func (g *Game) GetAllGames() ([]*GameResponse, error) {
             g.id,
             g.field_id,
             f.name,
-           g.max_players,
+            g.score,
+            g.group_id,
             g.game_date,
             g.created_at,
             g.updated_at 
@@ -54,7 +57,8 @@ func (g *Game) GetAllGames() ([]*GameResponse, error) {
 			&game.ID,
 			&game.FieldID,
 			&game.FieldName,
-			&game.MaxPlayers,
+			&game.Score,
+			&game.GroupID,
 			&game.GameDate,
 			&game.CreatedAt,
 			&game.UpdatedAt,
@@ -76,7 +80,7 @@ func (g *Game) GetGameById(id string) (*GameResponse, error) {
             g.id,
             g.field_id,
             f.name,
-            g.max_players,
+            g.score,
             g.game_date,
             g.created_at,
             g.updated_at 
@@ -91,7 +95,7 @@ func (g *Game) GetGameById(id string) (*GameResponse, error) {
 		&game.ID,
 		&game.FieldID,
 		&game.FieldName,
-		&game.MaxPlayers,
+		&game.Score,
 		&game.GameDate,
 		&game.CreatedAt,
 		&game.UpdatedAt,
@@ -104,15 +108,15 @@ func (g *Game) GetGameById(id string) (*GameResponse, error) {
 
 // POST/games/game/byDateField
 func (g *Game) GetGameByDateField(game Game) (*GameResponse, error) {
-    ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
-    defer cancel()
-    query := `
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+	query := `
         select 
            g.id,                                           
             g.field_id,                                     
             f.name,                                         
             g.game_date,                                    
-            g.max_players,                                  
+            g.score,                                  
             g.created_at,                                   
             g.updated_at                                    
         from games g                  
@@ -120,53 +124,54 @@ func (g *Game) GetGameByDateField(game Game) (*GameResponse, error) {
             on g.field_id = f.id
         where g.game_date = $1 and g.field_id = $2;    
     `
-    var gameRes GameResponse
+	var gameRes GameResponse
 
-    row := db.QueryRowContext(ctx, query, game.GameDate, game.FieldID)
-    err := row.Scan(
-        &gameRes.ID,
+	row := db.QueryRowContext(ctx, query, game.GameDate, game.FieldID)
+	err := row.Scan(
+		&gameRes.ID,
 		&gameRes.FieldID,
 		&gameRes.FieldName,
 		&gameRes.GameDate,
-		&gameRes.MaxPlayers,
+		&gameRes.Score,
 		&gameRes.CreatedAt,
 		&gameRes.UpdatedAt,
-    )
-    if err != nil {
-        fmt.Println("ERROR", err)
-        return nil, err
-    }
-    return &gameRes, nil
+	)
+	if err != nil {
+		fmt.Println("ERROR", err)
+		return nil, err
+	}
+	return &gameRes, nil
 }
 
 // POST/games/create
 func (g *Game) CreateGame(game Game) (*Game, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-    
-    gameExists, err := g.GetGameByDateField(game)
-    if err != nil {
-        fmt.Println("No game found!")
-    }
 
-    existsError := errors.New("Game already exists")
-    fmt.Printf("Exists -> %v, aboutToCreate -> %v", gameExists, game)
-    if gameExists != nil && gameExists.GameDate.UTC() == game.GameDate {
-        fmt.Println("\nGame with same datetime & field already exists----->")
-        return nil, existsError
-    }
+	gameExists, err := g.GetGameByDateField(game)
+	if err != nil {
+		fmt.Println("No game found!")
+	}
+
+	existsError := errors.New("Game already exists")
+	fmt.Printf("Exists -> %v, aboutToCreate -> %v", gameExists, game)
+	if gameExists != nil && gameExists.GameDate.UTC() == game.GameDate {
+		fmt.Println("\nGame with same datetime & field already exists----->")
+		return nil, existsError
+	}
 
 	query := `
-		insert into games (field_id, game_date, max_players, created_at, updated_at)
-		values ($1, $2, $3, $4, $5) returning *
+		insert into games (field_id, group_id, game_date, score, created_at, updated_at)
+		values ($1, $2, $3, $4, $5, $6) returning *
 	`
 
-    _, err = db.ExecContext(
+	_, err = db.ExecContext(
 		ctx,
 		query,
 		game.FieldID,
+        game.GroupID,
 		game.GameDate,
-		game.MaxPlayers,
+		game.Score,
 		time.Now(),
 		time.Now(),
 	)
@@ -183,7 +188,7 @@ func (g *Game) UpdateGame() error {
 	query := `
 		update games set
 		field_id = $1,
-		max_players = $2,
+		score = $2,
 		updated_at = $3,
 		where id = $4
 	`

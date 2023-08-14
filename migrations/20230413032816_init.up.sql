@@ -18,10 +18,19 @@ CREATE TABLE fields (
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
+CREATE TABLE groups (
+  "id" uuid PRIMARY KEY NOT NULL DEFAULT (uuid_generate_v4()),
+  "name" varchar UNIQUE NOT NULL,
+  "image" varchar,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now())
+);
+
 CREATE TABLE games (
   "id" uuid PRIMARY KEY NOT NULL DEFAULT (uuid_generate_v4()),
   "field_id" uuid NOT NULL REFERENCES fields (id) ON DELETE CASCADE,
-  "max_players" int NOT NULL,
+  "score" varchar NOT NULL,
+  "group_id" uuid NOT NULL REFERENCES groups (id) ON DELETE CASCADE,
   "game_date" timestamptz NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
@@ -31,14 +40,6 @@ CREATE TABLE attendees (
   "id" uuid PRIMARY KEY NOT NULL DEFAULT (uuid_generate_v4()),
   "user_id" uuid NOT NULL,
   "game_id" uuid NOT NULL,
-  "created_at" timestamptz NOT NULL DEFAULT (now()),
-  "updated_at" timestamptz NOT NULL DEFAULT (now())
-);
-
-CREATE TABLE groups (
-  "id" uuid PRIMARY KEY NOT NULL DEFAULT (uuid_generate_v4()),
-  "name" varchar UNIQUE NOT NULL,
-  "image" varchar,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
@@ -66,17 +67,14 @@ CREATE TABLE profile (
 
 CREATE TABLE reports (
   "id" uuid PRIMARY KEY NOT NULL DEFAULT (uuid_generate_v4()),
-  "group_id" uuid,
-  "field_id" uuid,
-  "score" varchar NOT NULL,
   "team_side" varchar NOT NULL,
   "user_id" uuid,
+  "game_id" uuid NOT NULL,
   "player_name" varchar NOT NULL,
   "goals" int NOT NULL,
   "assists" int NOT NULL,
   "won" boolean NOT NULL,
-  "man_of_the_match" int,
-  "game_date" timestamptz NOT NULL,
+  "man_of_the_match" boolean NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );

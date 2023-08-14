@@ -6,25 +6,19 @@ import (
 	"fmt"
 	"io"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 // TODO: missing mapping out table to struct
 type Report struct {
 	ID            string    `json:"id"`
-	GroupID       string    `json:"group_id"`
-	FieldID       string    `json:"field_id"`
-	Score         string    `json:"score"`
 	TeamSide      string    `json:"team_side"`
 	UserID        string    `json:"user_id"`
+	GameID        string    `json:"game_id"`
 	PlayerName    string    `json:"player_name"`
-	Assists       int       `json:"assists"`
 	Goals         int       `json:"goals"`
-	Attendance    int       `json:"attendance"`
-	ManOfTheMatch int       `json:"man_of_the_match"`
-	Involvement   int       `json:"involvement"`
-	Attitude      string    `json:"attitude"`
+	Assists       int       `json:"assists"`
+	Won           bool      `json:"won"`
+	ManOfTheMatch bool      `json:"man_of_the_match"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
 }
@@ -33,7 +27,21 @@ func (r *Report) GetAllReports() ([]*Report, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	query := `select * from reports`
+	query := `
+        select  
+            id,
+            team_side,
+            user_id,
+            game_id,
+            player_name,
+            goals,
+            assits,
+            won,
+            man_of_the_match,
+            created_at,
+            updated_at,
+        from reports
+    `
 
 	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
@@ -43,15 +51,17 @@ func (r *Report) GetAllReports() ([]*Report, error) {
 	for rows.Next() {
 		var report Report
 		err := rows.Scan(
-			&report.ID,
-			&report.UserID,
-			&report.Assists,
-			&report.ManOfTheMatch,
-			&report.Attendance,
-			&report.Involvement,
-			&report.Attitude,
-			&report.CreatedAt,
-			&report.UpdatedAt,
+			r.ID,
+			r.TeamSide,
+			r.UserID,
+			r.GameID,
+			r.PlayerName,
+			r.Goals,
+			r.Assists,
+			r.Won,
+			r.ManOfTheMatch,
+			r.CreatedAt,
+			r.UpdatedAt,
 		)
 		if err != nil {
 			return nil, err
@@ -61,48 +71,58 @@ func (r *Report) GetAllReports() ([]*Report, error) {
 	return reports, nil
 }
 
-func (r *Report) CreateReport(report Report) (string, error) {
+func (r *Report) CreateReport(report Report) (*Report, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-	newId := uuid.New()
 	query := `
-		insert into reports (id, user_id, game_id, assists, goals, attendance, man_of_the_match, involvement, attitude, created_at, updated_at)
-		values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) returning id
+		insert into reports (
+            team_side,
+            user_id,
+            game_id,
+            player_name,
+            goals,
+            assists,
+            won,
+            man_of_the_match,
+            created_at,
+            updated_at
+    )
+		values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning *
 	`
-	err := db.QueryRowContext(
+	_, err := db.ExecContext(
 		ctx,
 		query,
-		newId,
+		report.TeamSide,
 		report.UserID,
-		report.Assists,
+		report.GameID,
+		report.PlayerName,
 		report.Goals,
-		report.Attendance,
+		report.Assists,
+		report.Won,
 		report.ManOfTheMatch,
-		report.Involvement,
-		report.Attitude,
 		time.Now(),
 		time.Now(),
-	).Scan(&newId)
+	)
 	if err != nil {
-		return "0", err
+		return nil, err
 	}
-	return newId.String(), nil
+	return &report, nil
 }
 
 func (r *Report) UploadReport(file *csv.Reader) {
-   fmt.Println(&file) 
+	fmt.Println(&file)
 
-    for {
-        record, err := file.Read() 
-        if err == io.EOF {
-            break
-        } else if err != nil {
-            fmt.Println("Error", err) 
-            return
-        }
+	for {
+		record, err := file.Read()
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			fmt.Println("Error", err)
+			return
+		}
 
-        fmt.Println(record)
-    }
+		fmt.Println(record)
+	}
 }
 
 func (r *Report) GetReportById(id string) (*Report, error) {
@@ -114,13 +134,14 @@ func (r *Report) GetReportById(id string) (*Report, error) {
 	row := db.QueryRowContext(ctx, query, id)
 	err := row.Scan(
 		&report.ID,
+		&report.TeamSide,
 		&report.UserID,
-		&report.Assists,
+		&report.GameID,
+		&report.PlayerName,
 		&report.Goals,
-		&report.Attendance,
+		&report.Assists,
+		&report.Won,
 		&report.ManOfTheMatch,
-		&report.Involvement,
-		&report.Attitude,
 		&report.CreatedAt,
 		&report.UpdatedAt,
 	)
@@ -130,26 +151,59 @@ func (r *Report) GetReportById(id string) (*Report, error) {
 	return &report, nil
 }
 
-func (r *Report) GetAllReporstById(user_id string) ([]*Report, error) {
+func (r *Report) GetAllReportsByGroupId(group_id string) ([]*Report, error) {
+    ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+    defer cancel()
+    query := `
+        select 
+            r.id,
+            r.team_side,
+            r.user_id,
+            r.game_id,
+            r.player_name,
+            r.goals,
+            r.assists,
+            r.won,
+            r.man_of_the_match,
+            r.created_at,
+            r.updated_at
+        from reports r
+        inner join games g on r.game_id = g.id 
+        where g.group_id = $1
+    `
+    rows, err := db.QueryContext(ctx, query, group_id)
+	if err != nil {
+		return nil, err
+	}
+	var reports []*Report
+	for rows.Next() {
+		var report Report
+		err := rows.Scan(
+			&report.ID,
+			&report.TeamSide,
+			&report.UserID,
+			&report.GameID,
+			&report.PlayerName,
+			&report.Goals,
+			&report.Assists,
+			&report.Won,
+			&report.ManOfTheMatch,
+			&report.CreatedAt,
+			&report.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		reports = append(reports, &report)
+	}
+	return reports, nil
+}
+
+func (r *Report) GetAllReporstByUserId(user_id string) ([]*Report, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 	query := `
-		select
-			r.id,
-			r.user_id,
-			r.game_id,
-			r.assists,
-			r.goals,
-			r.attendance,
-			r.man_of_the_match,
-			r.involvement,
-			r.attitude,
-			r.created_at,
-			r.updated_at
-		from
-			reports r
-		inner join users u on u.id = r.user_id
-		where u.id = $1
+		select * from reports where user_id = $1
 	`
 	rows, err := db.QueryContext(ctx, query, user_id)
 	if err != nil {
@@ -160,13 +214,14 @@ func (r *Report) GetAllReporstById(user_id string) ([]*Report, error) {
 		var report Report
 		err := rows.Scan(
 			&report.ID,
+			&report.TeamSide,
 			&report.UserID,
-			&report.Assists,
+			&report.GameID,
+			&report.PlayerName,
 			&report.Goals,
-			&report.Attendance,
+			&report.Assists,
+			&report.Won,
 			&report.ManOfTheMatch,
-			&report.Involvement,
-			&report.Attitude,
 			&report.CreatedAt,
 			&report.UpdatedAt,
 		)

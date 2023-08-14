@@ -11,6 +11,8 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+var report services.Report
+
 // GET/reports/report
 func GetAllReports(w http.ResponseWriter, r *http.Request) {
 	var reports services.Report
@@ -33,10 +35,21 @@ func GetReportById(w http.ResponseWriter, r *http.Request) {
 	helpers.WriteJSON(w, http.StatusOK, report)
 }
 
+// GET/reports/group_id
+func GetReportsOfGroup(w http.ResponseWriter, r *http.Request) {
+    id := chi.URLParam(r, "group_id")
+    reports, err := report.GetAllReportsByGroupId(id)
+    if err != nil {
+        helpers.MessageLogs.ErrorLog.Println(err)
+        return
+    }
+    helpers.WriteJSON(w, http.StatusOK, reports)
+}
+
 // GET/reports/user_id
 func GetReportsOfUser(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "user_id")
-	reports, err := mod.Report.GetAllReporstById(id)
+	reports, err := report.GetAllReporstByUserId(id)
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
 		return
@@ -73,12 +86,11 @@ func CreateReport(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	id, err := mod.Report.CreateReport(rp)
+	newReport, err := report.CreateReport(rp)
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
 	}
-	newGroup, _ := mod.Report.GetReportById(id)
-	helpers.WriteJSON(w, http.StatusOK, newGroup)
+	helpers.WriteJSON(w, http.StatusOK, newReport)
 }
 
 // func GetGroupById(w http.ResponseWriter, r *http.ResponseWriter) {

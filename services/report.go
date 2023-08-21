@@ -2,9 +2,9 @@ package services
 
 import (
 	"context"
+	"database/sql"
 	"encoding/csv"
 	"fmt"
-	"io"
 	"time"
 )
 
@@ -12,7 +12,7 @@ import (
 type Report struct {
 	ID            string    `json:"id"`
 	TeamSide      string    `json:"team_side"`
-	UserID        string    `json:"user_id"`
+	UserID        sql.NullString `json:"user_id,omitempty"`
 	GameID        string    `json:"game_id"`
 	PlayerName    string    `json:"player_name"`
 	Goals         int       `json:"goals"`
@@ -86,7 +86,7 @@ func (r *Report) CreateReport(report Report) (*Report, error) {
             man_of_the_match,
             created_at,
             updated_at
-    )
+        )
 		values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning *
 	`
 	_, err := db.ExecContext(
@@ -110,19 +110,86 @@ func (r *Report) CreateReport(report Report) (*Report, error) {
 }
 
 func (r *Report) UploadReport(file *csv.Reader) {
-	fmt.Println(&file)
+	fmt.Println(file)
 
-	for {
-		record, err := file.Read()
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			fmt.Println("Error", err)
-			return
-		}
-
-		fmt.Println(record)
+	lines, err := file.ReadAll()
+	if err != nil {
+		return
 	}
+	
+	for _, row := range lines {
+        var query string
+        ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+
+        defer cancel()
+
+		fmt.Println(row)
+
+        if row[2] != "" {
+            query = `
+                insert into reports (
+                    team_side,
+                    game_id,
+                    user_id,
+                    player_name,
+                    goals,
+                    assists,
+                    won,
+                    man_of_the_match,
+                    created_at,
+                    updated_at
+            )
+                values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning *
+            `
+            _, err = db.ExecContext(
+                ctx,
+                query,
+                row[0],
+                row[1],
+                row[2],
+                row[3],
+                row[4],
+                row[5],
+                row[6],
+                row[7],
+                time.Now(),
+                time.Now(),
+            )
+        } else {
+            query = `
+                insert into reports (
+                    team_side,
+                    game_id,
+                    player_name,
+                    goals,
+                    assists,
+                    won,
+                    man_of_the_match,
+                    created_at,
+                    updated_at
+            )
+                values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning *
+            `
+            _, err = db.ExecContext(
+                ctx,
+                query,
+                row[0],
+                row[1],
+                row[3],
+                row[4],
+                row[5],
+                row[6],
+                row[7],
+                time.Now(),
+                time.Now(),
+            )
+        }
+
+        if err != nil {
+            fmt.Println("Error in insert: ", err)
+        }
+	}
+    return
 }
 
 func (r *Report) GetReportById(id string) (*Report, error) {
@@ -152,9 +219,9 @@ func (r *Report) GetReportById(id string) (*Report, error) {
 }
 
 func (r *Report) GetAllReportsByGroupId(group_id string) ([]*Report, error) {
-    ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
-    defer cancel()
-    query := `
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+	query := `
         select 
             r.id,
             r.team_side,
@@ -170,18 +237,21 @@ func (r *Report) GetAllReportsByGroupId(group_id string) ([]*Report, error) {
         from reports r
         inner join games g on r.game_id = g.id 
         where g.group_id = $1
+        limit 24
+        offset 0;
     `
-    rows, err := db.QueryContext(ctx, query, group_id)
+	rows, err := db.QueryContext(ctx, query, group_id)
 	if err != nil {
 		return nil, err
 	}
 	var reports []*Report
 	for rows.Next() {
 		var report Report
+        
 		err := rows.Scan(
 			&report.ID,
 			&report.TeamSide,
-			&report.UserID,
+            &report.UserID,
 			&report.GameID,
 			&report.PlayerName,
 			&report.Goals,
@@ -191,9 +261,11 @@ func (r *Report) GetAllReportsByGroupId(group_id string) ([]*Report, error) {
 			&report.CreatedAt,
 			&report.UpdatedAt,
 		)
+
 		if err != nil {
 			return nil, err
 		}
+
 		reports = append(reports, &report)
 	}
 	return reports, nil

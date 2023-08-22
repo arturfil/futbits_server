@@ -1,35 +1,29 @@
-DSN="host=localhost port=5432 user=root password=secret dbname=chi_soccerdb sslmode=disable timezone=UTC connect_timeout=5" 
-BINARY_NAME=soccerApi
-PORT=8080
-DB_DOCKER_CONTAINER=chi_soccer
-BINARY_NAME=soccerApi
-SECRET_KEY=asdkjq234-081234j-lkasdf82314-32jlkjadsf0-891234ljasdf0-143jlaksdf
-DB_NAME=chi_soccerdb
+include .env
 
 # creates container with postgres software
 postgres:
-	docker run --name ${DB_DOCKER_CONTAINER} -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:12-alpine
+	docker run --name ${DB_DOCKER_CONTAINER} -p 5432:5432 -e POSTGRES_USER=${DB_USER}-e POSTGRES_PASSWORD=${DB_PASSWORD} -d postgres:12-alpine
 # creates the db withing the postgres container
 createdb:
-	docker exec -it ${DB_DOCKER_CONTAINER} createdb --username=root --owner=root ${DB_NAME}
+	docker exec -it ${DB_DOCKER_CONTAINER} createdb --username=${DB_USER} --owner=${DB_USER} ${DB_NAME}
 
 create-migrations-init:
 	sqlx migrate add -r init
 
 migrate-up:
-	sqlx migrate run --database-url "postgresql://root:secret@localhost:5432/chi_soccerdb?sslmode=disable" 
+	sqlx migrate run --database-url "postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable" 
 
 migrate-down:
-	sqlx migrate revert --database-url "postgresql://root:secret@localhost:5432/chi_soccerdb?sslmode=disable" 
+	sqlx migrate revert --database-url "postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable" 
 
 create-migrations-seed:
 	sqlx migrate add -r seed 
 
 seed_data:
-	sqlx migrate run --database-url "postgresql://root:secret@localhost:5432/chi_soccerdb?sslmode=disable" 
+	sqlx migrate run --database-url "postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable" 
 
 force_flag_false:
-	migrate -path migrations -database "postgresql://root:secret@localhost:5432/chi_soccerdb?sslmode=disable" force 1
+	migrate -path migrations -database "postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable" force 1
 
 sign_up:
 	curl -X POST http://localhost:8080/api/v1/auth/signup \

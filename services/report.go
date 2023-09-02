@@ -9,10 +9,24 @@ import (
 )
 
 // TODO: missing mapping out table to struct
+type ReportDTO struct {
+	ID            string         `json:"id"`
+	TeamSide      string         `json:"team_side"`
+	UserID        sql.NullString `json:"user_id,omitempty"`
+	GameID        string         `json:"game_id"`
+	PlayerName    string         `json:"player_name"`
+	Goals         int            `json:"goals"`
+	Assists       int            `json:"assists"`
+	Won           bool           `json:"won"`
+	ManOfTheMatch bool           `json:"man_of_the_match"`
+	CreatedAt     time.Time      `json:"created_at"`
+	UpdatedAt     time.Time      `json:"updated_at"`
+}
+
 type Report struct {
 	ID            string    `json:"id"`
 	TeamSide      string    `json:"team_side"`
-	UserID        sql.NullString `json:"user_id,omitempty"`
+	UserID        string    `json:"user_id,omitempty"`
 	GameID        string    `json:"game_id"`
 	PlayerName    string    `json:"player_name"`
 	Goals         int       `json:"goals"`
@@ -23,7 +37,7 @@ type Report struct {
 	UpdatedAt     time.Time `json:"updated_at"`
 }
 
-func (r *Report) GetAllReports() ([]*Report, error) {
+func (r *Report) GetAllReports() ([]*ReportDTO, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
@@ -44,12 +58,13 @@ func (r *Report) GetAllReports() ([]*Report, error) {
     `
 
 	rows, err := db.QueryContext(ctx, query)
+
 	if err != nil {
 		return nil, err
 	}
-	var reports []*Report
+	var reports []*ReportDTO
 	for rows.Next() {
-		var report Report
+		var report ReportDTO
 		err := rows.Scan(
 			r.ID,
 			r.TeamSide,
@@ -116,17 +131,17 @@ func (r *Report) UploadReport(file *csv.Reader) {
 	if err != nil {
 		return
 	}
-	
-	for _, row := range lines {
-        var query string
-        ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 
-        defer cancel()
+	for _, row := range lines {
+		var query string
+		ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+
+		defer cancel()
 
 		fmt.Println(row)
 
-        if row[2] != "" {
-            query = `
+		if row[2] != "" {
+			query = `
                 insert into reports (
                     team_side,
                     game_id,
@@ -141,22 +156,22 @@ func (r *Report) UploadReport(file *csv.Reader) {
             )
                 values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning *
             `
-            _, err = db.ExecContext(
-                ctx,
-                query,
-                row[0],
-                row[1],
-                row[2],
-                row[3],
-                row[4],
-                row[5],
-                row[6],
-                row[7],
-                time.Now(),
-                time.Now(),
-            )
-        } else {
-            query = `
+			_, err = db.ExecContext(
+				ctx,
+				query,
+				row[0],
+				row[1],
+				row[2],
+				row[3],
+				row[4],
+				row[5],
+				row[6],
+				row[7],
+				time.Now(),
+				time.Now(),
+			)
+		} else {
+			query = `
                 insert into reports (
                     team_side,
                     game_id,
@@ -170,26 +185,26 @@ func (r *Report) UploadReport(file *csv.Reader) {
             )
                 values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning *
             `
-            _, err = db.ExecContext(
-                ctx,
-                query,
-                row[0],
-                row[1],
-                row[3],
-                row[4],
-                row[5],
-                row[6],
-                row[7],
-                time.Now(),
-                time.Now(),
-            )
-        }
+			_, err = db.ExecContext(
+				ctx,
+				query,
+				row[0],
+				row[1],
+				row[3],
+				row[4],
+				row[5],
+				row[6],
+				row[7],
+				time.Now(),
+				time.Now(),
+			)
+		}
 
-        if err != nil {
-            fmt.Println("Error in insert: ", err)
-        }
+		if err != nil {
+			fmt.Println("Error in insert: ", err)
+		}
 	}
-    return
+	return
 }
 
 func (r *Report) GetReportById(id string) (*Report, error) {
@@ -218,7 +233,7 @@ func (r *Report) GetReportById(id string) (*Report, error) {
 	return &report, nil
 }
 
-func (r *Report) GetAllReportsByGroupId(group_id string) ([]*Report, error) {
+func (r *Report) GetAllReportsByGroupId(group_id string) ([]*ReportDTO, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 	query := `
@@ -244,14 +259,14 @@ func (r *Report) GetAllReportsByGroupId(group_id string) ([]*Report, error) {
 	if err != nil {
 		return nil, err
 	}
-	var reports []*Report
+	var reports []*ReportDTO
 	for rows.Next() {
-		var report Report
-        
+		var report ReportDTO
+
 		err := rows.Scan(
 			&report.ID,
 			&report.TeamSide,
-            &report.UserID,
+			&report.UserID,
 			&report.GameID,
 			&report.PlayerName,
 			&report.Goals,

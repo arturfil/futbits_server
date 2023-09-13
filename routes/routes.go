@@ -68,6 +68,7 @@ func Routes() http.Handler {
 	// REPORTS ROUTES
 	router.Get("/api/v1/reports/user/{user_id}", controllers.GetReportsOfUser)
 	router.Get("/api/v1/reports/group/{group_id}", controllers.GetReportsOfGroup)
+	router.Get("/api/v1/reports/game/{game_id}", controllers.GetReportsOfGame)
 	router.Get("/api/v1/reports/report/{id}", controllers.GetReportById)
 	router.Post("/api/v1/reports/report", controllers.CreateReport)
 	router.Post("/api/v1/reports/upload", controllers.UploadReportCSV)

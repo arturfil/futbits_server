@@ -35,6 +35,17 @@ func GetReportById(w http.ResponseWriter, r *http.Request) {
 	helpers.WriteJSON(w, http.StatusOK, report)
 }
 
+// GET/reports/game_id
+func GetReportsOfGame(w http.ResponseWriter, r *http.Request) {
+    id := chi.URLParam(r, "game_id")
+    reports, err := report.GetAllReportsByGameId(id)
+    if err != nil {
+        helpers.MessageLogs.ErrorLog.Println(err)
+        return 
+    }
+    helpers.WriteJSON(w, http.StatusOK, reports)
+}
+
 // GET/reports/group_id
 func GetReportsOfGroup(w http.ResponseWriter, r *http.Request) {
     id := chi.URLParam(r, "group_id")
@@ -57,6 +68,7 @@ func GetReportsOfUser(w http.ResponseWriter, r *http.Request) {
 	helpers.WriteJSON(w, http.StatusOK, reports)
 }
 
+// POST/reports/upload
 func UploadReportCSV(w http.ResponseWriter, r *http.Request) {
     var rp services.Report
     r.ParseMultipartForm(10 << 20)

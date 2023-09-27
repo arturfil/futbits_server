@@ -39,10 +39,6 @@ build:
 	go build -o ${BINARY_NAME} cmd/server/*.go
 	@echo "Binary build!"
 
-buildbackend:
-	env DSN=${DSN}
-	env GOOS=linux GOARCH=amd64 go build -o futbitsProd cmd/server/*.go
-
 stop_containers:
 	@echo "Stoping all docker containers..."
 	if [ $$(docker ps -q) ]; then \

@@ -1,6 +1,5 @@
 include .env
 
-# creates container with postgres software
 postgres:
 	docker run --name ${DB_DOCKER_CONTAINER} -p 5432:5432 -e POSTGRES_USER=${DB_USER}-e POSTGRES_PASSWORD=${DB_PASSWORD} -d postgres:12-alpine
 # creates the db withing the postgres container
@@ -40,6 +39,10 @@ build:
 	go build -o ${BINARY_NAME} cmd/server/*.go
 	@echo "Binary build!"
 
+buildbackend:
+	env DSN=${DSN}
+	env GOOS=linux GOARCH=amd64 go build -o futbitsProd cmd/server/*.go
+
 stop_containers:
 	@echo "Stoping all docker containers..."
 	if [ $$(docker ps -q) ]; then \
@@ -67,8 +70,11 @@ run: build stop_containers start-docker
 	@env PORT=${PORT} DSN=${DSN} ./${BINARY_NAME}  &
 	@echo "Backend started!"
 
-buildbackend:
-	set GOOS=linux&& set GOARCH=amd64&& set CGO_ENABLED=0 && go build -o ${BINARY_NAME} ./api
+run-prod: 	
+	@echo "Starting backend..."
+	@env PORT=${PORT} DSN=${DSN} ./${BINARY_NAME}  &
+	@echo "Backend started!"
+
 
 dirtflagfalse:
 	docker exec -it backend_postgres_1 update schema_migrations set dirty = false

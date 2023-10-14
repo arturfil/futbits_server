@@ -36,7 +36,7 @@ sign_up:
 
 build:
 	@echo "Building backend"
-	go build -o ${BINARY_NAME} cmd/server/*.go
+	go build -o ${BINARY_NAME} cmd/server/main.go
 	@echo "Binary build!"
 
 stop_containers:
@@ -74,6 +74,13 @@ run-prod:
 
 dirtflagfalse:
 	docker exec -it backend_postgres_1 update schema_migrations set dirty = false
+
+test.coverage:
+	go test ./cmd/server -coverprofile=coverage.out && go tool cover -html=coverage.out
+
+
+test.all: 
+	go test -v ./...
 
 dropdb:
 	docker exec -it ${DB_DOCKER_CONTAINER} psql -U root -d postgres -c "DROP DATABASE chi_soccerdb"

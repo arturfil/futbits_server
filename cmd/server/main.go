@@ -11,12 +11,8 @@ import (
 	"os"
 )
 
-type Config struct {
-	Port string
-}
-
 type Application struct {
-	Config Config
+	Config services.Config
 	Models services.Models
 }
 
@@ -31,8 +27,10 @@ func (app *Application) Serve() error {
 	return srv.ListenAndServe()
 }
 
+var srv http.Handler
+
 func main() {
-	var cfg Config
+	var cfg services.Config
 	port := os.Getenv("PORT")
 	cfg.Port = port
 
@@ -44,7 +42,7 @@ func main() {
 
 	defer dbConn.DB.Close()
 
-	app := &Application{
+	var app = &Application{
 		Config: cfg,
 		Models: services.New(dbConn.DB),
 	}

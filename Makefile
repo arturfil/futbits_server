@@ -6,23 +6,29 @@ postgres:
 createdb:
 	docker exec -it ${DB_DOCKER_CONTAINER} createdb --username=${DB_USER} --owner=${DB_USER} ${DB_NAME}
 
-create-migrations-init:
-	sqlx migrate add -r init
+init.up:
+	cat migrations/init.up.sql | docker exec -i ${DB_DOCKER_CONTAINER} psql -U ${DB_USER} -d ${DB_NAME}
 
-migrate-up:
-	sqlx migrate run --database-url "postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable" 
+init.down:
+	cat migrations/init.down.sql | docker exec -i ${DB_DOCKER_CONTAINER} psql -U ${DB_USER} -d ${DB_NAME}
 
-migrate-down:
-	sqlx migrate revert --database-url "postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable" 
+seed.up:
+	cat migrations/seed.up.sql | docker exec -i ${DB_DOCKER_CONTAINER} psql -U ${DB_USER} -d ${DB_NAME}
 
-create-migrations-seed:
-	sqlx migrate add -r seed 
-
-seed_data:
-	sqlx migrate run --database-url "postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable" 
+seed.down:
+	cat migrations/seed.down.sql | docker exec -i ${DB_DOCKER_CONTAINER} psql -U ${DB_USER} -d ${DB_NAME}
 
 force_flag_false:
 	migrate -path migrations -database "postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable" force 1
+
+login:
+	curl -X POST http://localhost:8080/api/v1/auth/login \
+	-H 'Content-Type: application/json' \
+	-d '{ \
+		"email":"arturo@test.com", \
+		"password": "Password123" \
+	}' \
+
 
 sign_up:
 	curl -X POST http://localhost:8080/api/v1/auth/signup \
@@ -76,6 +82,7 @@ dirtflagfalse:
 	docker exec -it backend_postgres_1 update schema_migrations set dirty = false
 
 test.coverage:
+	# go test ./tests/ -coverprofile=coverage.out && go tool cover -html=coverage.out
 	go test ./cmd/server -coverprofile=coverage.out && go tool cover -html=coverage.out
 
 
@@ -93,7 +100,7 @@ clean:
 
 start: run
 
-stop:
+stop: stop_containers
 	@echo "Stopping backend"
 	@-pkill -SIGTERM -f "./${BINARY_NAME}"
 	@ECHO "Stopped backend"

@@ -47,7 +47,7 @@ CREATE TABLE attendees (
 CREATE TABLE members (
   "id" uuid PRIMARY KEY NOT NULL DEFAULT (uuid_generate_v4()),
   "user_id" uuid NOT NULL,
-  "group_id" uuid NOT NULL,
+  "group_id" uuid NOT NULL REFERENCES groups (id) ON DELETE CASCADE,
   "member_type" varchar NOT NULL DEFAULT 'member',
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())

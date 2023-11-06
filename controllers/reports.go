@@ -27,22 +27,26 @@ func GetAllReports(w http.ResponseWriter, r *http.Request) {
 // GET/reports/report/id
 func GetReportById(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	report, err := mod.Report.GetReportById(id)
+
+	report, err := report.GetReportById(id)
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
 		return
 	}
+
 	helpers.WriteJSON(w, http.StatusOK, report)
 }
 
 // GET/reports/game_id
 func GetReportsOfGame(w http.ResponseWriter, r *http.Request) {
     id := chi.URLParam(r, "game_id")
+
     reports, err := report.GetAllReportsByGameId(id)
     if err != nil {
         helpers.MessageLogs.ErrorLog.Println(err)
         return 
     }
+
     helpers.WriteJSON(w, http.StatusOK, reports)
 }
 

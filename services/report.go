@@ -280,7 +280,6 @@ func (r *Report) GetAllReportsByGroupId(group_id string) ([]*ReportDTO, error) {
 		if err != nil {
 			return nil, err
 		}
-
 		reports = append(reports, &report)
 	}
 	return reports, nil

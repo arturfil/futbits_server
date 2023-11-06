@@ -4,6 +4,7 @@ import (
 	"chi_soccer/helpers"
 	"chi_soccer/services"
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -11,12 +12,18 @@ import (
 
 // GET/games
 func GetAllGames(w http.ResponseWriter, r *http.Request) {
+
+    group_id := chi.URLParam(r, "group_id")
+    log.Println("group_id", group_id)
+
 	var games services.Game
-	all, err := games.GetAllGames()
+
+	all, err := games.GetAllGames(group_id)
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
 		return
 	}
+
 	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"games": all})
 }
 

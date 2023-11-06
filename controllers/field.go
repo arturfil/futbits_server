@@ -35,13 +35,17 @@ func GetFieldById(w http.ResponseWriter, r *http.Request) {
 // POST/fields/field
 func CreateField(w http.ResponseWriter, r *http.Request) {
 	var f services.Field
+
 	err := json.NewDecoder(r.Body).Decode(&f)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
 	helpers.WriteJSON(w, http.StatusOK, f)
 	id, err := mod.Field.CreateField(f)
+
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
 		newField, _ := mod.Field.GetFieldById(id)
@@ -52,13 +56,18 @@ func CreateField(w http.ResponseWriter, r *http.Request) {
 // PUT/field
 func UpdateField(w http.ResponseWriter, r *http.Request) {
 	var f services.Field
+
 	err := json.NewDecoder(r.Body).Decode(&f)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
 	helpers.WriteJSON(w, http.StatusOK, f)
+
 	err = f.UpdateField()
+
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
 		helpers.WriteJSON(w, http.StatusOK, "updated field")

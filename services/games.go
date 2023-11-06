@@ -28,7 +28,7 @@ type GameResponse struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func (g *Game) GetAllGames() ([]*GameResponse, error) {
+func (g *Game) GetAllGames(group_id string) ([]*GameResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
@@ -43,14 +43,19 @@ func (g *Game) GetAllGames() ([]*GameResponse, error) {
             g.created_at,
             g.updated_at 
         from games g 
-        inner join fields f 
-            on g.field_id = f.id
-	`
-	rows, err := db.QueryContext(ctx, query)
+        INNER JOIN "groups" gp ON g.group_id = gp.id 
+        INNER JOIN "members" m ON gp.id = m.group_id
+        INNER JOIN users u ON u.id = m.user_id 
+        INNER JOIN fields f ON g.field_id = f.id
+        WHERE u.id = $1;
+    `
+	rows, err := db.QueryContext(ctx, query, group_id)
 	if err != nil {
 		return nil, err
 	}
+
 	var games []*GameResponse
+
 	for rows.Next() {
 		var game GameResponse
 		err := rows.Scan(
@@ -63,6 +68,7 @@ func (g *Game) GetAllGames() ([]*GameResponse, error) {
 			&game.CreatedAt,
 			&game.UpdatedAt,
 		)
+
 		if err != nil {
 			return nil, err
 		}
@@ -73,8 +79,10 @@ func (g *Game) GetAllGames() ([]*GameResponse, error) {
 
 // GET/games/game/:id
 func (g *Game) GetGameById(id string) (*GameResponse, error) {
+
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
+
 	query := `
         select 
             g.id,
@@ -103,6 +111,7 @@ func (g *Game) GetGameById(id string) (*GameResponse, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &game, nil
 }
 

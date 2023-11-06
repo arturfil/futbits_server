@@ -16,13 +16,18 @@ import (
 
 func Signup(w http.ResponseWriter, r *http.Request) {
 	var u services.User
+
 	err := json.NewDecoder(r.Body).Decode(&u)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
 	helpers.WriteJSON(w, http.StatusOK, u)
+
 	_, err = mod.User.Signup(u)
+
 	if err != nil {
 		h.ErrorLog.Panicln(err)
 		helpers.ErrorJSON(w, err, http.StatusForbidden)
@@ -33,10 +38,12 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 // equal
 func Login(w http.ResponseWriter, r *http.Request) {
 	var myKey = []byte(os.Getenv("SECRET_KEY"))
+
 	type credentials struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
+
 	// setup creds & jsonResponse
 	var creds credentials
 	var payload services.JsonResponse
@@ -49,12 +56,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		payload.Message = "Invalid json supplied"
 		_ = helpers.WriteJSON(w, http.StatusBadRequest, payload)
 	}
+
 	// get user if creds are valid
 	user, err := mod.User.GetByEmail(creds.Email)
 	if err != nil {
 		helpers.ErrorJSON(w, errors.New("invalid, no user found"))
 		return
 	}
+
 	// check if valid
 	validPassword, err := user.PasswordMatches(creds.Password)
 	if err != nil || !validPassword {
@@ -63,6 +72,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 	// create new token
 	token := jwt.New(jwt.SigningMethodHS256)
+
 	claims := token.Claims.(jwt.MapClaims)
 	claims["authorized"] = true
 	claims["name"] = user.FirstName
@@ -70,17 +80,21 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	claims["exp"] = time.Now().Add(time.Minute * 60 * 4).Unix()
 
 	tokenString, err := token.SignedString(myKey)
+
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
 		helpers.ErrorJSON(w, err)
 		return
 	}
+
 	user.Password = "hidden"
+
 	// create response
 	response := services.TokenResponse{
 		Token: tokenString,
 		User:  user,
 	}
+
 	// send response if no errors
 	err = helpers.WriteJSON(w, http.StatusOK, response)
 	if err != nil {
@@ -91,7 +105,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 // GetUserByToken - this method will serve to get the user once a token is provided. This
 // is really usefull when ever you want to preserve login state in the front-end
 func GetUserByToken(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Reached [GetUserByToken] method")
 	var myKey = []byte(os.Getenv("SECRET_KEY"))
 	type TokenClaim struct {
 		Authorized bool   `json:"authorized"`

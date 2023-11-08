@@ -215,13 +215,16 @@ func (g *Game) UpdateGame() error {
 	return nil
 }
 
-func (g *Game) DeleteGame() error {
+func (g *Game) DeleteGame(id string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
+
 	query := `delete from fields where id = $1`
-	_, err := db.ExecContext(ctx, query, g.ID)
+
+	_, err := db.ExecContext(ctx, query, id)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }

@@ -9,6 +9,8 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+var field services.Field
+
 // GET/fields
 func GetAllFields(w http.ResponseWriter, r *http.Request) {
 	var fields services.Field
@@ -24,7 +26,7 @@ func GetAllFields(w http.ResponseWriter, r *http.Request) {
 func GetFieldById(w http.ResponseWriter, r *http.Request) {
 	// var field services.Field
 	id := chi.URLParam(r, "id")
-	singleField, err := mod.Field.GetFieldById(id)
+	singleField, err := field.GetFieldById(id)
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
 		return
@@ -44,11 +46,11 @@ func CreateField(w http.ResponseWriter, r *http.Request) {
 	}
 
 	helpers.WriteJSON(w, http.StatusOK, f)
-	id, err := mod.Field.CreateField(f)
+	id, err := field.CreateField(f)
 
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
-		newField, _ := mod.Field.GetFieldById(id)
+		newField, _ := field.GetFieldById(id)
 		helpers.WriteJSON(w, http.StatusOK, newField)
 	}
 }

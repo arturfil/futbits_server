@@ -9,10 +9,12 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+var member services.Member
+
 // GET/members/group_id
 func GetAllMembersFromGroup(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "group_id")
-	members, err := mod.Member.GetAllMemberOfAGroup(id)
+	members, err := member.GetAllMemberOfAGroup(id)
 	helpers.MessageLogs.InfoLog.Println(members)
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
@@ -30,7 +32,7 @@ func CreateMember(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := mod.Member.CreateMember(m)
+	id, err := member.CreateMember(m)
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
 	}

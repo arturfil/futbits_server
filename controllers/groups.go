@@ -10,6 +10,8 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+var group services.Group
+
 // GET/groups
 func GetAllGroups(w http.ResponseWriter, r *http.Request) {
 	var groups services.Group
@@ -24,18 +26,20 @@ func GetAllGroups(w http.ResponseWriter, r *http.Request) {
 // GET/groups/:user_id
 func GetAllGroupsOfAUser(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "user_id")
-	groups, err := mod.Group.GetGroupsByMemberId(id)
+
+	groups, err := group.GetGroupsByMemberId(id)
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
 		return
 	}
+
 	helpers.WriteJSON(w, http.StatusOK, groups)
 }
 
 // GET/groups/group/:id
 func GetGroupById(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	group, err := mod.Group.GetGroupById(id)
+	group, err := group.GetGroupById(id)
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
 		return
@@ -51,11 +55,11 @@ func CreateGroup(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	id, err := mod.Group.CreateGroup(g)
+	id, err := group.CreateGroup(g)
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
 	}
-	newGroup, _ := mod.Group.GetGroupById(id)
+	newGroup, _ := group.GetGroupById(id)
 	helpers.WriteJSON(w, http.StatusOK, newGroup)
 }
 

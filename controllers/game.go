@@ -13,7 +13,7 @@ import (
 // TODO, check if you can delete the struct declarations
 // inside the functions
 var game services.Game
-var h helpers
+var h helpers.Message
 
 // GET/games
 func GetAllGames(w http.ResponseWriter, r *http.Request) {

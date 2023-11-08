@@ -14,6 +14,8 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+var user services.User
+
 func Signup(w http.ResponseWriter, r *http.Request) {
 	var u services.User
 
@@ -26,7 +28,7 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 
 	helpers.WriteJSON(w, http.StatusOK, u)
 
-	_, err = mod.User.Signup(u)
+	_, err = user.Signup(u)
 
 	if err != nil {
 		h.ErrorLog.Panicln(err)
@@ -58,7 +60,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// get user if creds are valid
-	user, err := mod.User.GetByEmail(creds.Email)
+	user, err := user.GetByEmail(creds.Email)
 	if err != nil {
 		helpers.ErrorJSON(w, errors.New("invalid, no user found"))
 		return
@@ -131,7 +133,7 @@ func GetUserByToken(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		user, err := mod.User.GetByEmail(claims.Email)
+		user, err := user.GetByEmail(claims.Email)
 		if err != nil {
 			helpers.MessageLogs.InfoLog.Print(err)
 		}
@@ -145,7 +147,7 @@ func GetUserByToken(w http.ResponseWriter, r *http.Request) {
 func SearchUser(w http.ResponseWriter, r *http.Request) {
 	searchWord := r.URL.Query().Get("keyword")
 	helpers.MessageLogs.InfoLog.Println(searchWord)
-	users, err := mod.User.SearchUserBy(searchWord)
+	users, err := user.SearchUserBy(searchWord)
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
 		return
@@ -156,7 +158,7 @@ func SearchUser(w http.ResponseWriter, r *http.Request) {
 // GET user by id
 func GetUserById(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	user, err := mod.User.GetUserById(id)
+	user, err := user.GetUserById(id)
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
 		return

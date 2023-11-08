@@ -55,6 +55,7 @@ func Routes() http.Handler {
 	router.Post("/api/v1/games/game/byDateField", controllers.GetGameByDateField)
 	router.Post("/api/v1/games/game", controllers.CreateGame)
 	router.Put("/api/v1/games/update", controllers.UpdateGame)
+    router.Delete("/api/v1/games/delete/{id}", controllers.DeleteGame)
 
 	// GROUP ROUTES
 	// router.Get("/api/v1/groups", controllers.GetAllGroups)

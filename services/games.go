@@ -219,7 +219,7 @@ func (g *Game) DeleteGame(id string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	query := `delete from fields where id = $1`
+	query := `delete from games where id = $1`
 
 	_, err := db.ExecContext(ctx, query, id)
 	if err != nil {

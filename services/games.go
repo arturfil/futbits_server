@@ -23,12 +23,13 @@ type GameResponse struct {
 	FieldName string    `json:"field_name"`
 	GameDate  time.Time `json:"game_date"`
 	GroupID   string    `json:"group_id"`
+	GroupName string    `json:"group_name,omitempty"`
 	Score     string    `json:"score"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func (g *Game) GetAllGames(group_id string) ([]*GameResponse, error) {
+func (g *Game) GetAllGames(user_id string) ([]*GameResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
@@ -49,7 +50,7 @@ func (g *Game) GetAllGames(group_id string) ([]*GameResponse, error) {
         INNER JOIN fields f ON g.field_id = f.id
         WHERE u.id = $1;
     `
-	rows, err := db.QueryContext(ctx, query, group_id)
+	rows, err := db.QueryContext(ctx, query, user_id)
 	if err != nil {
 		return nil, err
 	}
@@ -88,13 +89,15 @@ func (g *Game) GetGameById(id string) (*GameResponse, error) {
             g.id,
             g.field_id,
             f.name,
+            gp.name,
+            g.group_id,
             g.score,
             g.game_date,
             g.created_at,
             g.updated_at 
         from games g
-        inner join fields f
-            on g.field_id = f.id
+        inner join fields f on g.field_id = f.id
+        inner join "groups" gp on gp.id = g.group_id
         where g.id = $1`
 	var game GameResponse
 
@@ -103,6 +106,8 @@ func (g *Game) GetGameById(id string) (*GameResponse, error) {
 		&game.ID,
 		&game.FieldID,
 		&game.FieldName,
+		&game.GroupName,
+        &game.GroupID,
 		&game.Score,
 		&game.GameDate,
 		&game.CreatedAt,
@@ -178,7 +183,7 @@ func (g *Game) CreateGame(game Game) (*Game, error) {
 		ctx,
 		query,
 		game.FieldID,
-        game.GroupID,
+		game.GroupID,
 		game.GameDate,
 		game.Score,
 		time.Now(),
@@ -190,24 +195,28 @@ func (g *Game) CreateGame(game Game) (*Game, error) {
 	return &game, nil
 }
 
-func (g *Game) UpdateGame() error {
+func (g *Game) UpdateGame(id string, game Game) error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
 	query := `
-		update games set
-		field_id = $1,
-		score = $2,
-		updated_at = $3,
-		where id = $4
+		UPDATE games 
+        SET
+            field_id = $1,
+            score = $2,
+            game_date = $3,
+            updated_at = $4
+		WHERE id = $5
 	`
 
 	_, err := db.ExecContext(
 		ctx,
 		query,
-		g.FieldID,
+		game.FieldID,
+        game.Score,
+        game.GameDate,
 		time.Now(),
-		g.ID,
+		id,
 	)
 	if err != nil {
 		return err

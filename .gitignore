@@ -28,3 +28,4 @@ project/db/*
 db/postgres/*
 
 soccerApi
+.air.toml

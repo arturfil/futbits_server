@@ -18,8 +18,8 @@ var h helpers.Message
 // GET/games
 func GetAllGames(w http.ResponseWriter, r *http.Request) {
 
-    group_id := chi.URLParam(r, "group_id")
-    log.Println("group_id", group_id)
+    group_id := chi.URLParam(r, "user_id")
+    log.Println("user_id", group_id)
 
 	var games services.Game
 
@@ -80,6 +80,9 @@ func CreateGame(w http.ResponseWriter, r *http.Request) {
 func UpdateGame(w http.ResponseWriter, r *http.Request) {
 	var g services.Game
 
+    id := chi.URLParam(r, "id")
+    log.Println("id", id)
+
 	err := json.NewDecoder(r.Body).Decode(&g)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -88,7 +91,7 @@ func UpdateGame(w http.ResponseWriter, r *http.Request) {
 
 	helpers.WriteJSON(w, http.StatusOK, g)
 
-	err = g.UpdateGame()
+	err = g.UpdateGame(id, g)
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
 	}

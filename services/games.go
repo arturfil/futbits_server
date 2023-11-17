@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"time"
 )
 
@@ -199,20 +200,22 @@ func (g *Game) UpdateGame(id string, game Game) error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
+    log.Println("game", game)
+    
 	query := `
-		UPDATE games 
-        SET
-            field_id = $1,
-            score = $2,
-            game_date = $3,
-            updated_at = $4
-		WHERE id = $5
-	`
+    UPDATE games
+    SET 
+        field_id = $1,
+        score = $2,
+        game_date = $3,
+        updated_at = $4
+    WHERE id = $5;
+			`
 
 	_, err := db.ExecContext(
 		ctx,
 		query,
-		game.FieldID,
+        game.FieldID,
         game.Score,
         game.GameDate,
 		time.Now(),

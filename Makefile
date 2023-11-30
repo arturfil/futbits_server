@@ -40,6 +40,16 @@ sign_up:
 		"password": "Password123" \
 	}' \
 
+	curl -X POST http://arturosforms-env.eba-vzwujs2e.us-east-1.elasticbeanstalk.com/api/users \
+	-H 'Content-Type: application/json' \
+	-d '{ \
+		"name": "Arturo", \
+		"email": "arturo@test.com", \
+		"password": "Password123" \
+	}' \
+
+
+
 build:
 	@echo "Building backend"
 	go build -o ${BINARY_NAME} cmd/server/main.go

@@ -16,17 +16,6 @@ type Application struct {
 	Models services.Models
 }
 
-func (app *Application) Serve() error {
-	port := os.Getenv("PORT")
-	helpers.MessageLogs.InfoLog.Println("API listening on port", port)
-
-	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%s", port),
-		Handler: routes.Routes(),
-	}
-	return srv.ListenAndServe()
-}
-
 var srv http.Handler
 
 func main() {
@@ -52,3 +41,16 @@ func main() {
 		log.Fatal(err)
 	}
 }
+
+func (app *Application) Serve() error {
+	port := os.Getenv("PORT")
+	helpers.MessageLogs.InfoLog.Println("API listening on port", port)
+
+	srv := &http.Server{
+		Addr:    fmt.Sprintf(":%s", port),
+		Handler: routes.Routes(),
+	}
+	return srv.ListenAndServe()
+}
+
+

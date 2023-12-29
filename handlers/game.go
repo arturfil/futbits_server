@@ -1,4 +1,4 @@
-package controllers
+package handlers
 
 import (
 	"chi_soccer/helpers"

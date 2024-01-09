@@ -92,9 +92,16 @@ dirtflagfalse:
 	docker exec -it backend_postgres_1 update schema_migrations set dirty = false
 
 test.coverage:
-	# go test ./tests/ -coverprofile=coverage.out && go tool cover -html=coverage.out
 	go test ./cmd/server -coverprofile=coverage.out && go tool cover -html=coverage.out
 
+test.routes:
+	go test -v ./routes/
+
+test.coverage.routes:
+	go test ./routes -coverprofile=coverage.out && go tool cover -html=coverage.out
+
+test.handlers:
+	go test -v ./handlers/
 
 test.all: 
 	go test -v ./...

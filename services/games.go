@@ -165,7 +165,7 @@ func (g *Game) CreateGame(game Game) (*Game, error) {
 
 	gameExists, err := g.GetGameByDateField(game)
 	if err != nil {
-		fmt.Println("No game found!")
+		fmt.Println("A game with that date and time already exists") 
 	}
 
 	existsError := errors.New("Game already exists")

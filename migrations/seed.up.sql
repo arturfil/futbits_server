@@ -1,5 +1,9 @@
-INSERT INTO fields (name, address)
+INSERT INTO fields (id, name, address)
 VALUES 
-    ('Soccer Cage Downtown', '128 NE 17th St, Miami, FL 33132'),
-    ('Brickell & Soccer Padel', '301 SW 8th St, Miami, FL 33130'),
-    ('Soccer Rooftop', '444 Brickell Ave, Miami, FL 33131');
+    ('ff0b708b-c2dd-46db-ae96-1e9cddc485c7', 'Soccer Cage Downtown', '128 NE 17th St, Miami, FL 33132'),
+    ('828378ed-90f2-453c-af77-7706a25519cb', 'Brickell & Soccer Padel', '301 SW 8th St, Miami, FL 33130'),
+    ('47a4a57f-fa22-4444-8f56-2a6d92f557cc', 'Soccer Rooftop', '444 Brickell Ave, Miami, FL 33131');
+
+INSERT INTO groups (id, name, image)
+VALUES
+    ('d676a368-95ee-41ff-a884-a68cc708de64', 'Mondays Group', '')

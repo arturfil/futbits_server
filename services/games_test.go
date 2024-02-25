@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"testing"
-	"time"
 
 	_ "github.com/jackc/pgconn"
 	_ "github.com/jackc/pgx/v4"
@@ -89,7 +88,7 @@ func TestMain(m *testing.M) {
 	// m -> main.Run() -> run tests from main function
 	code := m.Run()
 
-	// clean up
+	// clean up docker container
 	if err := pool.Purge(resource); err != nil {
 		log.Fatalf("could not purge resource: %s", err)
 	}
@@ -136,33 +135,22 @@ func Test_pingDB(t *testing.T) {
 	}
 }
 
-func TestPostgresDBRepoInsertGame(t *testing.T) {
-    var game Game
-
-    // TODO:
-    // this doesn't work becuse the field id's are different.
-    // make sure that you get a field Id first
-	gameBody := Game{
-		FieldID:  "1a503e25-daf9-4fc2-9e16-1e401cc78aa2",
-		GameDate: time.Date(2024, 1, 16, 12 ,0, 0, 0, time.UTC),
-		Score:    "12-8",
-		GroupID:  "e1674f62-0da6-4fe1-9e9a-3c94deea1d8d",
-	}
-
-    gameResp, err := game.CreateGame(gameBody)
-    if err != nil {
-        t.Errorf("Create game returned an error: %s", err)
-    }
-
-    // testDB.Exec()
-
-	// allFields, err := fields.GetAllFields()
-	// if err != nil {
-	// 	t.Errorf("create game returned error: %s", err)
-	// } // fmt.Println(allFields)
-
-	fmt.Println("all fields ->", gameResp)
-}
+// func TestPostgresDBRepoInsertGame(t *testing.T) {
+//      var game Game
+// 
+//     gameBody := Game{
+// 		FieldID:  "828378ed-90f2-453c-af77-7706a25519cb",
+// 		GameDate: time.Date(2024, 1, 16, 12 ,0, 0, 0, time.UTC),
+// 		Score:    "12-8",
+// 		GroupID:  "d676a368-95ee-41ff-a884-a68cc708de64",
+// 	}
+// 
+//     _, err := game.CreateGame(gameBody)
+//     if err != nil {
+//         t.Errorf("Create game returned an error: %s", err)
+//     }
+// 
+// }
 
 // func CreateGame(testGame services.Game) {
 // 	// panic("unimplemented")

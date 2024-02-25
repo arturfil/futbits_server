@@ -16,7 +16,7 @@ type Field struct {
 }
 
 // GET/allFields
-func (f *Field) GetAllFields() ([]*Field, error) {
+func (f *Field) GetAllFields() ([]Field, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
@@ -25,7 +25,7 @@ func (f *Field) GetAllFields() ([]*Field, error) {
 	if err != nil {
 		return nil, err
 	}
-	var fields []*Field
+	var fields []Field
 	for rows.Next() {
 		var field Field
 		err := rows.Scan(
@@ -38,7 +38,7 @@ func (f *Field) GetAllFields() ([]*Field, error) {
 		if err != nil {
 			return nil, err
 		}
-		fields = append(fields, &field)
+		fields = append(fields, field)
 	}
 	return fields, nil
 }

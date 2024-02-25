@@ -14,12 +14,14 @@ var field services.Field
 // GET/fields
 func GetAllFields(w http.ResponseWriter, r *http.Request) {
 	var fields services.Field
+
 	all, err := fields.GetAllFields()
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
 		return
 	}
-	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"fields": all})
+
+    helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"fields": all})
 }
 
 // GET/fields/field

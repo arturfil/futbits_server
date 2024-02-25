@@ -1,7 +1,7 @@
 include .env
 
 postgres:
-	docker run --name ${DB_DOCKER_CONTAINER} -p 5432:5432 -e POSTGRES_USER=${DB_USER}-e POSTGRES_PASSWORD=${DB_PASSWORD} -d postgres:12-alpine
+	docker run --name ${DB_DOCKER_CONTAINER} -p 5432:5432 -e POSTGRES_USER=${DB_USER} -e POSTGRES_PASSWORD=${DB_PASSWORD} -d postgres:12-alpine
 # creates the db withing the postgres container
 createdb:
 	docker exec -it ${DB_DOCKER_CONTAINER} createdb --username=${DB_USER} --owner=${DB_USER} ${DB_NAME}
@@ -120,6 +120,6 @@ start: run
 stop: stop_containers
 	@echo "Stopping backend"
 	@-pkill -SIGTERM -f "./${BINARY_NAME}"
-	@ECHO "Stopped backend"
+	@echo "Stopped backend"
 
 restart: stop start

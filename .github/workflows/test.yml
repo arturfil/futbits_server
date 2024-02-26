@@ -25,8 +25,8 @@
 #       - name: Test
 #         run: go test ./...
 
-name: Upload Go test results
-
+name: Testing Go server code integration
+ 
 on: [push]
 
 jobs:

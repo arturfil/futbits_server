@@ -1,0 +1,14 @@
+name: integrate
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  integrate:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: "run tests"
+        run: echo "I'm going to be running tests soon"
+      

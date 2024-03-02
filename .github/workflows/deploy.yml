@@ -6,12 +6,8 @@ on:
       - main
 
 jobs:
-
   deploy:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        go-version: [ '1.19', '1.20', '1.21.x' ]
 
     steps:
     - name: Checkout repository
@@ -20,10 +16,10 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v2
       with:
-        go-version: ${{ matrix.go-version }}
+        go-version: 1.18
 
     - name: Build Go application
-      run: go build -o ${BINARY_NAME} ../../cmd/server/main.go 
+      run: make build & make run-prod
 
     - name: Copy files to EC2
       uses: appleboy/scp-action@master
@@ -32,7 +28,7 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         source: ./
-        target: ./proj/server/
+        target: /path/to/destination
 
     - name: SSH into EC2 and restart application
       uses: appleboy/ssh-action@master
@@ -42,6 +38,6 @@ jobs:
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         port: 22
         script: |
-          cd ./proj/server/ 
-          ./${BINARY_NAME}
+          cd /path/to/destination
+          ./myapp
 

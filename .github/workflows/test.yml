@@ -1,8 +1,9 @@
 name: Testing Go server code integration
  
-on: [push]
-  branches:
-    - main
+on: 
+  push:
+    branches:
+      - main
 
 jobs:
   build:

@@ -11,6 +11,8 @@ import (
 	_ "github.com/lib/pq"
 )
 
+
+
 type DB struct {
 	DB *sql.DB
 }

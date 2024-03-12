@@ -48,8 +48,6 @@ sign_up:
 		"password": "Password123" \
 	}' \
 
-
-
 build:
 	@echo "Building backend"
 	go build -o ${BINARY_NAME} cmd/server/main.go
@@ -93,12 +91,6 @@ dirtflagfalse:
 
 test.coverage:
 	go test ./cmd/server -coverprofile=coverage.out && go tool cover -html=coverage.out
-
-test.routes:
-	go test -v ./routes/
-
-test.coverage.routes:
-	go test ./routes -coverprofile=coverage.out && go tool cover -html=coverage.out
 
 test.handlers:
 	go test -v ./handlers/

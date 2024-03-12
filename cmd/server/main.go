@@ -2,8 +2,8 @@ package main
 
 import (
 	"chi_soccer/db"
+	"chi_soccer/handlers"
 	"chi_soccer/helpers"
-	"chi_soccer/routes"
 	"chi_soccer/services"
 	"fmt"
 	"log"
@@ -48,7 +48,7 @@ func (app *Application) Serve() error {
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%s", port),
-		Handler: routes.Routes(),
+		Handler: handlers.Routes(),
 	}
 	return srv.ListenAndServe()
 }

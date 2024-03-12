@@ -9,11 +9,11 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-var field services.Field
+var field services.FieldRepo
 
 // GET/fields
-func GetAllFields(w http.ResponseWriter, r *http.Request) {
-	var fields services.Field
+func getAllFields(w http.ResponseWriter, r *http.Request) {
+    var fields services.Field
 
 	all, err := fields.GetAllFields()
 	if err != nil {
@@ -25,7 +25,7 @@ func GetAllFields(w http.ResponseWriter, r *http.Request) {
 }
 
 // GET/fields/field
-func GetFieldById(w http.ResponseWriter, r *http.Request) {
+func getFieldById(w http.ResponseWriter, r *http.Request) {
 	// var field services.Field
 	id := chi.URLParam(r, "id")
 	singleField, err := field.GetFieldById(id)

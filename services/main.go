@@ -18,6 +18,13 @@ func New(dbPool *sql.DB) Models {
 	}
 }
 
+func NewMock(dbPool *sql.DB) MockModels {
+    db = dbPool
+	return MockModels{
+		Field: MockField{},
+	}
+}
+
 type Models struct {
 	User          User
 	JsonResponse  JsonResponse
@@ -28,4 +35,8 @@ type Models struct {
 	Group         Group
 	TokenResponse TokenResponse
 	Game          Game
+}
+
+type MockModels struct {
+   Field MockField 
 }

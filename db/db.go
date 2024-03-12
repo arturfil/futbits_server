@@ -1,4 +1,4 @@
-package db
+package db 
 
 import (
 	"database/sql"
@@ -11,7 +11,10 @@ import (
 	_ "github.com/lib/pq"
 )
 
-
+type DatabaseRepo interface {
+    ConnectPosgres(dsn string) (*DB, error)
+    checkDB(d *sql.DB)
+}
 
 type DB struct {
 	DB *sql.DB
@@ -23,20 +26,20 @@ const maxOpenDbConn = 10
 const maxIdleDbConn = 5
 const maxDbLifeTime = 5 * time.Minute
 
-func ConnectPostgres(dsn string) (*DB, error) {
-	d, err := sql.Open("pgx", dsn)
+func (d *DB) ConnectPostgres(dsn string) (*DB, error) {
+	db, err := sql.Open("pgx", dsn)
 	if err != nil {
 		return nil, err
 	}
-	d.SetMaxOpenConns(maxOpenDbConn)
-	d.SetMaxIdleConns(maxIdleDbConn)
-	d.SetConnMaxLifetime(maxDbLifeTime)
+	db.SetMaxOpenConns(maxOpenDbConn)
+	db.SetMaxIdleConns(maxIdleDbConn)
+	db.SetConnMaxLifetime(maxDbLifeTime)
 
-	err = checkDB(d)
+	err = checkDB(db)
 	if err != nil {
 		return nil, err
 	}
-	dbConn.DB = d
+	dbConn.DB = db
 	return dbConn, nil
 }
 

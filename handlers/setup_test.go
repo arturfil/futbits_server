@@ -11,7 +11,6 @@ import (
 	"testing"
 )
 
-var app services.Application
 
 type Application struct {
 	Config services.Config
@@ -20,7 +19,7 @@ type Application struct {
 
 func TestMain(m *testing.M) {
    dsn := "host=localhost port=5432 user=root password=secret dbname=chi_soccerdb sslmode=disable timezone=UTC connect_timeout=5" 
-
+    db := db.DB{}
 
 	dbConn, err := db.ConnectPostgres(dsn)
 	if err != nil {

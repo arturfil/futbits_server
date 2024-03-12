@@ -7,6 +7,14 @@ import (
 	"github.com/google/uuid"
 )
 
+type FieldRepo interface {
+    GetAllFields() ([]Field, error) 
+    GetFieldById(id string) (*Field, error)
+    CreateField(field Field) (string, error)
+    UpdateField() error
+    DeleteField() error
+}
+
 type Field struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`

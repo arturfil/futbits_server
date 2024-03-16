@@ -108,7 +108,7 @@ func (g *Game) GetGameById(id string) (*GameResponse, error) {
 		&game.FieldID,
 		&game.FieldName,
 		&game.GroupName,
-        &game.GroupID,
+		&game.GroupID,
 		&game.Score,
 		&game.GameDate,
 		&game.CreatedAt,
@@ -165,7 +165,7 @@ func (g *Game) CreateGame(game Game) (*Game, error) {
 
 	gameExists, err := g.GetGameByDateField(game)
 	if err != nil {
-		fmt.Println("A game with that date and time already exists") 
+		fmt.Println("A game with that date and time already exists")
 	}
 
 	existsError := errors.New("Game already exists")
@@ -200,8 +200,8 @@ func (g *Game) UpdateGame(id string, game Game) error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-    log.Println("game", game)
-    
+	log.Println("game", game)
+
 	query := `
     UPDATE games
     SET 
@@ -215,9 +215,9 @@ func (g *Game) UpdateGame(id string, game Game) error {
 	_, err := db.ExecContext(
 		ctx,
 		query,
-        game.FieldID,
-        game.Score,
-        game.GameDate,
+		game.FieldID,
+		game.Score,
+		game.GameDate,
 		time.Now(),
 		id,
 	)

@@ -1,4 +1,4 @@
-package db 
+package db
 
 import (
 	"database/sql"
@@ -12,8 +12,8 @@ import (
 )
 
 type DatabaseRepo interface {
-    ConnectPosgres(dsn string) (*DB, error)
-    checkDB(d *sql.DB)
+	ConnectPosgres(dsn string) (*DB, error)
+	checkDB(d *sql.DB)
 }
 
 type DB struct {

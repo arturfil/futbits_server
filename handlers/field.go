@@ -13,7 +13,7 @@ var field services.FieldRepo
 
 // GET/fields
 func getAllFields(w http.ResponseWriter, r *http.Request) {
-    var fields services.Field
+	var fields services.Field
 
 	all, err := fields.GetAllFields()
 	if err != nil {
@@ -21,7 +21,7 @@ func getAllFields(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-    helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"fields": all})
+	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"fields": all})
 }
 
 // GET/fields/field

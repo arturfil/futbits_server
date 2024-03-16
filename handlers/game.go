@@ -18,8 +18,8 @@ var h helpers.Message
 // GET/games
 func GetAllGames(w http.ResponseWriter, r *http.Request) {
 
-    group_id := chi.URLParam(r, "user_id")
-    log.Println("user_id", group_id)
+	group_id := chi.URLParam(r, "user_id")
+	log.Println("user_id", group_id)
 
 	var games services.Game
 
@@ -80,8 +80,8 @@ func CreateGame(w http.ResponseWriter, r *http.Request) {
 func UpdateGame(w http.ResponseWriter, r *http.Request) {
 	var g services.Game
 
-    id := chi.URLParam(r, "id")
-    log.Println("id", id)
+	id := chi.URLParam(r, "id")
+	log.Println("id", id)
 
 	err := json.NewDecoder(r.Body).Decode(&g)
 	if err != nil {
@@ -96,18 +96,18 @@ func UpdateGame(w http.ResponseWriter, r *http.Request) {
 		helpers.MessageLogs.ErrorLog.Println(err)
 	}
 
-    helpers.WriteJSON(w, http.StatusOK, "Updated Game")
+	helpers.WriteJSON(w, http.StatusOK, "Updated Game")
 }
 
 func DeleteGame(w http.ResponseWriter, r *http.Request) {
-    id := chi.URLParam(r, "id")
+	id := chi.URLParam(r, "id")
 
-    err := game.DeleteGame(id)  
-    if err != nil {
-        helpers.MessageLogs.ErrorLog.Println(err)
-        return 
-    }
+	err := game.DeleteGame(id)
+	if err != nil {
+		helpers.MessageLogs.ErrorLog.Println(err)
+		return
+	}
 
-    // TODO: return 203 -> successfully deleted
-    helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"message": "successfully deleted"})
+	// TODO: return 203 -> successfully deleted
+	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"message": "successfully deleted"})
 }

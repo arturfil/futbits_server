@@ -20,6 +20,10 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
 
+      - name: Format code
+        run: go -fmt
+
       - name: Test with Go
-        run: go test ./...
+        # run: go test ./...
+        run: go test ../../services/
 

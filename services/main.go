@@ -14,13 +14,13 @@ var db *sql.DB
 func New(dbPool *sql.DB) Models {
 	db = dbPool
 	return Models{
-		User: User{},
-        Field: &Field{},
+		User:  User{},
+		Field: &Field{},
 	}
 }
 
 type Config struct {
-    Port string
+	Port string
 }
 
 type Models struct {

@@ -1,4 +1,4 @@
-package handlers 
+package handlers
 
 import (
 	"chi_soccer/middlewares"
@@ -21,7 +21,7 @@ func Routes() http.Handler {
 		MaxAge:           300,
 	}))
 
-    // all v1 routes
+	// all v1 routes
 	router.Route("/api/v1/", func(router chi.Router) {
 
 		router.Post("/auth/login", Login)

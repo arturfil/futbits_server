@@ -137,19 +137,19 @@ func Test_pingDB(t *testing.T) {
 
 // func TestPostgresDBRepoInsertGame(t *testing.T) {
 //      var game Game
-// 
+//
 //     gameBody := Game{
 // 		FieldID:  "828378ed-90f2-453c-af77-7706a25519cb",
 // 		GameDate: time.Date(2024, 1, 16, 12 ,0, 0, 0, time.UTC),
 // 		Score:    "12-8",
 // 		GroupID:  "d676a368-95ee-41ff-a884-a68cc708de64",
 // 	}
-// 
+//
 //     _, err := game.CreateGame(gameBody)
 //     if err != nil {
 //         t.Errorf("Create game returned an error: %s", err)
 //     }
-// 
+//
 // }
 
 // func CreateGame(testGame services.Game) {

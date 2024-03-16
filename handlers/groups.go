@@ -49,7 +49,7 @@ func GetGroupById(w http.ResponseWriter, r *http.Request) {
 
 // POST/groups/create
 func CreateGroup(w http.ResponseWriter, r *http.Request) {
-	var g services.Group 
+	var g services.Group
 	err := json.NewDecoder(r.Body).Decode(&g)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -64,6 +64,6 @@ func CreateGroup(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteGroup(w http.ResponseWriter, r *http.Request) {
-    id := chi.URLParam(r, "id")
-    fmt.Printf("%v\n", id)
+	id := chi.URLParam(r, "id")
+	fmt.Printf("%v\n", id)
 }

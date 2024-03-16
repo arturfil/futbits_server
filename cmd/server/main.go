@@ -10,7 +10,7 @@ import (
 
 func main() {
 	var cfg services.Config
-    var db db.DB
+	var db db.DB
 	port := os.Getenv("PORT")
 	cfg.Port = port
 
@@ -32,6 +32,3 @@ func main() {
 		log.Fatal(err)
 	}
 }
-
-
-

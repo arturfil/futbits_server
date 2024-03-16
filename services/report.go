@@ -286,22 +286,22 @@ func (r *Report) GetAllReportsByGroupId(group_id string) ([]*ReportDTO, error) {
 }
 
 func (r *Report) GetAllReportsByGameId(game_id string) ([]*ReportDTO, error) {
-    ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
-    defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
 
-    query := `select * from reports where game_id = $1`
+	query := `select * from reports where game_id = $1`
 
 	rows, err := db.QueryContext(ctx, query, game_id)
-    if err != nil {
-        return nil, err
-    }
+	if err != nil {
+		return nil, err
+	}
 
-    var reports []*ReportDTO
-    for rows.Next() {
-        var report ReportDTO
-        err := rows.Scan(
-            &report.ID,
-            &report.TeamSide,
+	var reports []*ReportDTO
+	for rows.Next() {
+		var report ReportDTO
+		err := rows.Scan(
+			&report.ID,
+			&report.TeamSide,
 			&report.UserID,
 			&report.GameID,
 			&report.PlayerName,
@@ -311,15 +311,15 @@ func (r *Report) GetAllReportsByGameId(game_id string) ([]*ReportDTO, error) {
 			&report.ManOfTheMatch,
 			&report.CreatedAt,
 			&report.UpdatedAt,
-        )
+		)
 
-        if err != nil {
-            return nil, err
-        }
-        
-        reports = append(reports, &report)
-    }
-    return reports, nil
+		if err != nil {
+			return nil, err
+		}
+
+		reports = append(reports, &report)
+	}
+	return reports, nil
 }
 
 func (r *Report) GetAllReporstByUserId(user_id string) ([]*Report, error) {

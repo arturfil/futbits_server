@@ -11,27 +11,26 @@ import (
 	"testing"
 )
 
-
 type Application struct {
 	Config services.Config
 	Models services.Models
 }
 
 func TestMain(m *testing.M) {
-   dsn := "host=localhost port=5432 user=root password=secret dbname=chi_soccerdb sslmode=disable timezone=UTC connect_timeout=5" 
-    db := db.DB{}
+	dsn := "host=localhost port=5432 user=root password=secret dbname=chi_soccerdb sslmode=disable timezone=UTC connect_timeout=5"
+	db := db.DB{}
 
 	dbConn, err := db.ConnectPostgres(dsn)
 	if err != nil {
 		log.Fatal("Cannot connect to database", err)
 	}
 
-	var app Application    
+	var app Application
 
-    app.Models = services.New(dbConn.DB)
+	app.Models = services.New(dbConn.DB)
 
 	os.Exit(m.Run())
- 
+
 }
 
 func (app *Application) TestServe() error {
@@ -43,5 +42,3 @@ func (app *Application) TestServe() error {
 	}
 	return srv.ListenAndServe()
 }
-
-

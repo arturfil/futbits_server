@@ -23,7 +23,7 @@ func CreateProfile(w http.ResponseWriter, r *http.Request) {
 
 	id, err := profile.CreateProfile(p)
 
-    log.Println("ID", id)
+	log.Println("ID", id)
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
 	}
@@ -45,21 +45,21 @@ func GetProfileById(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateProfile(w http.ResponseWriter, r *http.Request) {
-    id := chi.URLParam(r, "id")
+	id := chi.URLParam(r, "id")
 
-    var p services.Profile
+	var p services.Profile
 
-    err := json.NewDecoder(r.Body).Decode(&p)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
-        return
-    }
+	err := json.NewDecoder(r.Body).Decode(&p)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
-    helpers.WriteJSON(w, http.StatusOK, p)
+	helpers.WriteJSON(w, http.StatusOK, p)
 
-    err = p.UpdateProfile(id, p)
-    if err != nil {
-        helpers.MessageLogs.ErrorLog.Println(err)
-        helpers.WriteJSON(w, http.StatusOK, "updated profile")
-    }
+	err = p.UpdateProfile(id, p)
+	if err != nil {
+		helpers.MessageLogs.ErrorLog.Println(err)
+		helpers.WriteJSON(w, http.StatusOK, "updated profile")
+	}
 }

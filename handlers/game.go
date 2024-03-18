@@ -96,7 +96,7 @@ func UpdateGame(w http.ResponseWriter, r *http.Request) {
 		helpers.MessageLogs.ErrorLog.Println(err)
 	}
 
-	helpers.WriteJSON(w, http.StatusOK, "Updated Game")
+	helpers.WriteJSON(w, http.StatusNoContent, "Updated Game")
 }
 
 func DeleteGame(w http.ResponseWriter, r *http.Request) {
@@ -109,5 +109,5 @@ func DeleteGame(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO: return 203 -> successfully deleted
-	helpers.WriteJSON(w, http.StatusOK, helpers.Envelope{"message": "successfully deleted"})
+	helpers.WriteJSON(w, http.StatusNoContent, "successfully deleted")
 }

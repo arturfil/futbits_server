@@ -9,7 +9,6 @@ import (
 
 func main() {
 
-
 	var cfg services.Config
 	var db services.DB
 
@@ -25,14 +24,13 @@ func main() {
 	defer dbConn.DB.Close()
 
 	var app = &models.Application{
-        DB: services.DB{
-            Models: services.New(dbConn.DB),
-        },
-    }
+		DB: services.DB{
+			Models: services.New(dbConn.DB),
+		},
+	}
 
-    err = app.Serve()
-
+	err = app.Serve()
 	if err != nil {
-		log.Fatal(err)
+        log.Panic(err)
 	}
 }

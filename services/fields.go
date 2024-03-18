@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -53,11 +54,12 @@ func (f *Field) GetAllFields() ([]Field, error) {
 
 // GET/fields/field/:id
 func (f *Field) GetFieldById(id string) (*Field, error) {
+	var field Field
+
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	query := `select * from fields where id = $1`
-	var field Field
+	query := `select id, name, address, created_at, updated_at from fields where id = $1`
 
 	row := db.QueryRowContext(ctx, query, id)
 	err := row.Scan(
@@ -68,8 +70,10 @@ func (f *Field) GetFieldById(id string) (*Field, error) {
 		&field.UpdatedAt,
 	)
 	if err != nil {
+        log.Println("error", err)
 		return nil, err
 	}
+
 	return &field, nil
 }
 

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"chi_soccer/db"
 	"chi_soccer/models"
 	"chi_soccer/services"
 	"log"
@@ -9,8 +8,11 @@ import (
 )
 
 func main() {
+
+
 	var cfg services.Config
-	var db db.DB
+	var db services.DB
+
 	port := os.Getenv("PORT")
 	cfg.Port = port
 
@@ -23,11 +25,13 @@ func main() {
 	defer dbConn.DB.Close()
 
 	var app = &models.Application{
-		Config: cfg,
-		Models: services.New(dbConn.DB),
-	}
+        DB: services.DB{
+            Models: services.New(dbConn.DB),
+        },
+    }
 
-	err = app.Serve()
+    err = app.Serve()
+
 	if err != nil {
 		log.Fatal(err)
 	}

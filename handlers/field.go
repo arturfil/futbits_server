@@ -28,16 +28,18 @@ func getAllFields(w http.ResponseWriter, r *http.Request) {
 func getFieldById(w http.ResponseWriter, r *http.Request) {
 	// var field services.Field
 	id := chi.URLParam(r, "id")
+
 	singleField, err := field.GetFieldById(id)
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
 		return
 	}
+
 	helpers.WriteJSON(w, http.StatusOK, singleField)
 }
 
 // POST/fields/field
-func CreateField(w http.ResponseWriter, r *http.Request) {
+func createField(w http.ResponseWriter, r *http.Request) {
 	var f services.Field
 
 	err := json.NewDecoder(r.Body).Decode(&f)
@@ -48,13 +50,15 @@ func CreateField(w http.ResponseWriter, r *http.Request) {
 	}
 
 	helpers.WriteJSON(w, http.StatusOK, f)
-	id, err := field.CreateField(f)
+	err = field.CreateField(f)
 
 	if err != nil {
 		helpers.MessageLogs.ErrorLog.Println(err)
-		newField, _ := field.GetFieldById(id)
-		helpers.WriteJSON(w, http.StatusOK, newField)
+        return
 	}
+
+
+	helpers.WriteJSON(w, http.StatusOK, "Created Field sucessfully")
 }
 
 // PUT/field

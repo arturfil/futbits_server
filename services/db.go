@@ -1,4 +1,4 @@
-package db
+package services
 
 import (
 	"database/sql"
@@ -18,15 +18,16 @@ type DatabaseRepo interface {
 
 type DB struct {
 	DB *sql.DB
+    Models Models
 }
 
-var dbConn = &DB{}
 
 const maxOpenDbConn = 10
 const maxIdleDbConn = 5
 const maxDbLifeTime = 5 * time.Minute
 
 func (d *DB) ConnectPostgres(dsn string) (*DB, error) {
+    dbConn := &DB{}
 	db, err := sql.Open("pgx", dsn)
 	if err != nil {
 		return nil, err
@@ -49,6 +50,6 @@ func checkDB(d *sql.DB) error {
 		fmt.Println("Error", err)
 		return err
 	}
-	fmt.Println("*** Pinged database successfully! ***")
+	fmt.Printf("\n*** Pinged database successfully! ***\n")
 	return nil
 }

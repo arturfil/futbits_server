@@ -14,8 +14,7 @@ var db *sql.DB
 func New(dbPool *sql.DB) Models {
 	db = dbPool
 	return Models{
-		User:  User{},
-		Field: &Field{},
+		User:          User{},
 	}
 }
 
@@ -27,7 +26,7 @@ type Models struct {
 	User          User
 	JsonResponse  JsonResponse
 	Report        Report
-	Field         FieldRepo
+	Field         Field
 	Profile       Profile
 	Member        Member
 	Group         Group

@@ -1,7 +1,6 @@
 package models
 
 import (
-	"chi_soccer/db"
 	"chi_soccer/handlers"
 	"chi_soccer/helpers"
 	"chi_soccer/services"
@@ -13,7 +12,7 @@ import (
 type Application struct {
 	Config services.Config
 	Models services.Models
-	Store  db.DB
+    DB services.DB
 }
 
 func (app *Application) Serve() error {

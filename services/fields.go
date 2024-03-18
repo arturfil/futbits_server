@@ -10,7 +10,7 @@ import (
 type FieldRepo interface {
 	GetAllFields() ([]Field, error)
 	GetFieldById(id string) (*Field, error)
-	CreateField(field Field) (string, error)
+	CreateField(field Field) (error)
 	UpdateField() error
 	DeleteField() error
 }
@@ -55,6 +55,7 @@ func (f *Field) GetAllFields() ([]Field, error) {
 func (f *Field) GetFieldById(id string) (*Field, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
+
 	query := `select * from fields where id = $1`
 	var field Field
 
@@ -73,7 +74,7 @@ func (f *Field) GetFieldById(id string) (*Field, error) {
 }
 
 // POST/createField
-func (f *Field) CreateField(field Field) (string, error) {
+func (f *Field) CreateField(field Field) (error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
@@ -92,9 +93,9 @@ func (f *Field) CreateField(field Field) (string, error) {
 	).Scan(&newId)
 
 	if err != nil {
-		return "0", err
+		return err
 	}
-	return newId.String(), nil
+	return nil
 }
 
 // PUT/games/game

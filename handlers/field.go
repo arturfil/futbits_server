@@ -59,7 +59,7 @@ func createField(w http.ResponseWriter, r *http.Request) {
 }
 
 // PUT/field
-func UpdateField(w http.ResponseWriter, r *http.Request) {
+func updateField(w http.ResponseWriter, r *http.Request) {
 	var f services.Field
 
 	err := json.NewDecoder(r.Body).Decode(&f)

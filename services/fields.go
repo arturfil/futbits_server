@@ -11,7 +11,7 @@ import (
 type FieldRepo interface {
 	GetAllFields() ([]Field, error)
 	GetFieldById(id string) (*Field, error)
-	CreateField(field Field) (error)
+    CreateField(field Field) (error)
 	UpdateField() error
 	DeleteField() error
 }

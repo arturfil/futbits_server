@@ -14,7 +14,15 @@ var db *sql.DB
 func New(dbPool *sql.DB) Models {
 	db = dbPool
 	return Models{
-		User: User{},
+		User:          User{},
+		JsonResponse:  JsonResponse{},
+		Report:        Report{},
+		Field:         Field{},
+		Profile:       Profile{},
+		Member:        Member{},
+		Group:         Group{},
+		TokenResponse: TokenResponse{},
+		Game:          Game{},
 	}
 }
 

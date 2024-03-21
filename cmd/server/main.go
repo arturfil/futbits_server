@@ -16,7 +16,7 @@ func main() {
 	cfg.Port = port
 
 	dsn := os.Getenv("DSN")
-	dbConn, err := db.ConnectPostgres(dsn)
+	dbConn, err := db.ConnectToDB(dsn)
 	if err != nil {
 		log.Fatal("Cannot connect to database", err)
 	}

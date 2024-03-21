@@ -12,22 +12,21 @@ import (
 )
 
 type DatabaseRepo interface {
-	ConnectPosgres(dsn string) (*DB, error)
+	ConnectToDB(dsn string) (*DB, error)
 	checkDB(d *sql.DB)
 }
 
 type DB struct {
 	DB *sql.DB
-    Models Models
+	Models Models
 }
-
 
 const maxOpenDbConn = 10
 const maxIdleDbConn = 5
 const maxDbLifeTime = 5 * time.Minute
 
-func (d *DB) ConnectPostgres(dsn string) (*DB, error) {
-    dbConn := &DB{}
+func (d *DB) ConnectToDB(dsn string) (*DB, error) {
+	dbConn := &DB{}
 	db, err := sql.Open("pgx", dsn)
 	if err != nil {
 		return nil, err

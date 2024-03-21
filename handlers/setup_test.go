@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"chi_soccer/db"
 	"chi_soccer/helpers"
 	"chi_soccer/services"
 	"fmt"
@@ -18,7 +17,7 @@ type Application struct {
 
 func TestMain(m *testing.M) {
 	dsn := "host=localhost port=5432 user=root password=secret dbname=chi_soccerdb sslmode=disable timezone=UTC connect_timeout=5"
-	db := db.DB{}
+	db := services.DB{}
 
 	dbConn, err := db.ConnectPostgres(dsn)
 	if err != nil {

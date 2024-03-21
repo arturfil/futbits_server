@@ -75,7 +75,7 @@ func TestMain(m *testing.M) {
 
 		return testDB.Ping()
 	}); err != nil {
-		// _ = pool.Purge(resource)
+		_ = pool.Purge(resource)
 		log.Fatalf("could not connect to database: %s", err)
 	}
 
@@ -91,9 +91,9 @@ func TestMain(m *testing.M) {
 
 	// clean up docker container
     // For testing comment this if err code block
-	// if err := pool.Purge(resource); err != nil {
-	// 	log.Fatalf("could not purge resource: %s", err)
-	// }
+	if err := pool.Purge(resource); err != nil {
+		log.Fatalf("could not purge resource: %s", err)
+	}
 
 	os.Exit(code)
 }

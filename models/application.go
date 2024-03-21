@@ -11,7 +11,6 @@ import (
 
 type Application struct {
 	Config services.Config
-	Models services.Models
     DB services.DB
 }
 

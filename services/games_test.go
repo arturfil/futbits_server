@@ -59,7 +59,7 @@ func TestMain(m *testing.M) {
 	// get resource
 	resource, err = pool.RunWithOptions(&opts)
 	if err != nil {
-		// _ = pool.Purge(resource)
+		_ = pool.Purge(resource)
 		log.Fatalf("could not start resource: %s", err)
 	}
 
@@ -75,7 +75,7 @@ func TestMain(m *testing.M) {
 
 		return testDB.Ping()
 	}); err != nil {
-		_ = pool.Purge(resource)
+		// _ = pool.Purge(resource)
 		log.Fatalf("could not connect to database: %s", err)
 	}
 
@@ -90,9 +90,10 @@ func TestMain(m *testing.M) {
 	code := m.Run()
 
 	// clean up docker container
-	if err := pool.Purge(resource); err != nil {
-		log.Fatalf("could not purge resource: %s", err)
-	}
+    // For testing comment this if err code block
+	// if err := pool.Purge(resource); err != nil {
+	// 	log.Fatalf("could not purge resource: %s", err)
+	// }
 
 	os.Exit(code)
 }
@@ -141,9 +142,9 @@ func TestPostgresDBRepoInsertGame(t *testing.T) {
 
     gameBody := Game{
 		FieldID:  "828378ed-90f2-453c-af77-7706a25519cb",
-		GameDate: time.Date(2024, 2, 16, 7, 0, 0, 0, time.UTC),
+		GameDate: time.Date(2024, 2, 16, 24, 0, 0, 0, time.UTC),
 		Score:    "12-8",
-		GroupID:  "d676a368-95ee-41ff-a884-a68cc708de64",
+		GroupID:  "727378ed-20f2-453c-af77-7706a63419cb",
 	}
 
     _, err := game.CreateGame(gameBody)

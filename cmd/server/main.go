@@ -1,4 +1,4 @@
-package main
+package mainmain
 
 import (
 	"chi_soccer/models"
@@ -31,6 +31,6 @@ func main() {
 
 	err = app.Serve()
 	if err != nil {
-        log.Panic(err)
+		log.Panic(err)
 	}
 }

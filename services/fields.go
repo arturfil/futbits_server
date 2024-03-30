@@ -11,7 +11,7 @@ import (
 type FieldRepo interface {
 	GetAllFields() ([]Field, error)
 	GetFieldById(id string) (*Field, error)
-    CreateField(field Field) (error)
+	CreateField(field Field) error
 	UpdateField() error
 	DeleteField() error
 }
@@ -70,7 +70,7 @@ func (f *Field) GetFieldById(id string) (*Field, error) {
 		&field.UpdatedAt,
 	)
 	if err != nil {
-        log.Println("error", err)
+		log.Println("error", err)
 		return nil, err
 	}
 
@@ -78,7 +78,7 @@ func (f *Field) GetFieldById(id string) (*Field, error) {
 }
 
 // POST/createField
-func (f *Field) CreateField(field Field) (error) {
+func (f *Field) CreateField(field Field) error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 

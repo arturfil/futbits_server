@@ -11,13 +11,13 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type DatabaseRepo interface {
-	ConnectToDB(dsn string) (*DB, error)
-	checkDB(d *sql.DB)
-}
+// type DatabaseRepo interface {
+// 	ConnectToDB(dsn string) (*DB, error)
+// 	checkDB(d *sql.DB)
+// }
 
 type DB struct {
-	DB *sql.DB
+	DB     *sql.DB
 	Models Models
 }
 

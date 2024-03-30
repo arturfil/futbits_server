@@ -46,9 +46,9 @@ func Routes() http.Handler {
 
 		// FIELD ROUTES
 		router.Get("/fields", getAllFields)
-		router.Get("/fields/field/{id}", getFieldById)
-		router.Post("/fields/field", createField)
-		router.Put("/fields/update", updateField) // TODO
+		// router.Get("/fields/field/{id}", getFieldById)
+		// router.Post("/fields/field", createField)
+		// router.Put("/fields/update", updateField) // TODO
 
 		// GAME ROUTES
 		router.Get("/games/{user_id}", GetAllGames)

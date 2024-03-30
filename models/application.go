@@ -11,7 +11,7 @@ import (
 
 type Application struct {
 	Config services.Config
-    DB services.DB
+	DB     services.DB
 }
 
 func (app *Application) Serve() error {

@@ -17,7 +17,7 @@ func New(dbPool *sql.DB) Models {
 		User:          User{},
 		JsonResponse:  JsonResponse{},
 		Report:        Report{},
-		Field:         Field{},
+		Field:         &Field{},
 		Profile:       Profile{},
 		Member:        Member{},
 		Group:         Group{},
@@ -34,7 +34,7 @@ type Models struct {
 	User          User
 	JsonResponse  JsonResponse
 	Report        Report
-	Field         Field
+	Field         FieldRepo
 	Profile       Profile
 	Member        Member
 	Group         Group
